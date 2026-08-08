@@ -8,7 +8,6 @@ const effects: ShaderCategory = {
   description:
     'Real-time particle systems, fluid simulation, and organic cellular automata — all responding to your mouse.',
   descriptionZh: '实时粒子系统、流体模拟和有机元胞自动机——全部响应鼠标交互。',
-  tone: 'dark',
   cardType: 'shader',
   series: [
     {

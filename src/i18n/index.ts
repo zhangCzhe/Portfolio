@@ -10,7 +10,6 @@ i18n
       zh: {
         translation: {
           entry: {
-            title: '着色器作品集',
             subtitle: '探索 Fragment Shader 的无限可能',
             enter: '进入探索',
             hint: '点击或滚动进入',
@@ -72,7 +71,6 @@ i18n
       en: {
         translation: {
           entry: {
-            title: 'Shader Portfolio',
             subtitle: 'Exploring the Infinite Possibilities of Fragment Shaders',
             enter: 'Enter',
             hint: 'Click or scroll to enter',

@@ -8,7 +8,6 @@ const basics: ShaderCategory = {
   description:
     'From colors and shapes to noise, fractals, and lighting — the building blocks of fragment shaders.',
   descriptionZh: '从色彩、形状到噪声、分形和光照——片元着色器的构建基石。',
-  tone: 'dark',
   cardType: 'shader',
   series: [
     {
