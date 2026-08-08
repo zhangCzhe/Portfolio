@@ -103,4 +103,58 @@ test.describe('portfolio smoke', () => {
     await expect(room).toBeHidden();
     await expect(page.locator('.framed-artwork').first()).toBeVisible();
   });
+
+  test('gallery wall renders all four exhibition halls', async ({ page }) => {
+    await page.goto('/Portfolio/');
+    await page.locator('.entry-hall__enter').click();
+    await expect(page.locator('.gallery-section').first()).toBeVisible();
+    const sectionCount = await page.locator('.gallery-section').count();
+    expect(sectionCount).toBeGreaterThanOrEqual(4);
+    // 每个展厅至少陈列一幅作品；画布是可见后才挂载（IntersectionObserver），
+    // 先滚入视口再验证（filters 厅为 webcam 卡片，headless 下可能显示 fallback 而非画布）
+    for (let i = 0; i < sectionCount; i += 1) {
+      const section = page.locator('.gallery-section').nth(i);
+      await section.scrollIntoViewIfNeeded();
+      await expect(section.locator('.framed-artwork').first()).toBeAttached({ timeout: 10_000 });
+      if (i < 3) {
+        await expect(section.locator('canvas.shader-canvas').first()).toBeAttached({
+          timeout: 10_000,
+        });
+      }
+    }
+  });
+
+  test('focus room sliders adjust live params and Escape returns to the wall', async ({ page }) => {
+    await page.goto('/Portfolio/');
+    await page.locator('.entry-hall__enter').click();
+
+    const artwork = page.locator('.framed-artwork__canvas').first();
+    await expect(artwork.locator('canvas.shader-canvas')).toBeAttached({ timeout: 10_000 });
+    await artwork.click();
+
+    const room = page.getByTestId('focus-room');
+    await expect(room).toBeVisible();
+
+    const slider = room.locator('input[type="range"]').first();
+    await expect(slider).toBeVisible();
+    await slider.focus();
+    await page.keyboard.press('ArrowRight');
+    // 第一个参数默认 1.0，ArrowRight 走一个 step(0.1) → 1.1，验证参数已实时更新
+    await expect(room.locator('.shader-controls__value').first()).toHaveText('1.1');
+
+    await page.keyboard.press('Escape');
+    await expect(room).toBeHidden();
+  });
+
+  test('language switch to Chinese updates hall names', async ({ page }) => {
+    await page.goto('/Portfolio/');
+    await page.locator('.entry-hall__enter').click();
+    await expect(page.locator('.gallery-section').first()).toBeVisible();
+
+    // 首屏馆签形态的导航里切换语言
+    await page.locator('.museum-nav-minimal .museum-nav__lang').click();
+    await expect(page.locator('.museum-nav-minimal__brand')).toHaveText('Shader 美术馆');
+    await expect(page.locator('.gallery-kicker').first()).toHaveText('第一展厅');
+    await expect(page.locator('.gallery-section__title').first()).toHaveText('Shader 基础');
+  });
 });
