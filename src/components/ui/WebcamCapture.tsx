@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { WebGLRenderer } from '../../shader/WebGLRenderer';
-import { useCanvasSlot } from '../../shader/CanvasPool';
+import { useShaderCanvas } from '../../hooks/useShaderCanvas';
+import type { UniformSchema } from '../../engine/types';
 
 interface WebcamCaptureProps {
   fragmentShader: string;
-  uniforms?: Record<string, number>;
+  uniforms?: UniformSchema;
   className?: string;
 }
 
@@ -20,83 +20,37 @@ const ERROR_KEYS = [
 ] as const;
 type ErrorKey = (typeof ERROR_KEYS)[number];
 
-export function WebcamCapture({
-  fragmentShader,
-  uniforms = {},
-  className = '',
-}: WebcamCaptureProps) {
+export function WebcamCapture({ fragmentShader, uniforms, className = '' }: WebcamCaptureProps) {
   const { t } = useTranslation();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const rendererRef = useRef<WebGLRenderer | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const fragRef = useRef(fragmentShader);
-  fragRef.current = fragmentShader;
-  const uniformsRef = useRef(uniforms);
-  uniformsRef.current = uniforms;
-
-  const [visible, setVisible] = useState(false);
   const [error, setError] = useState<ErrorKey | null>(null);
   const [loading, setLoading] = useState(true);
-  const [forceKey, setForceKey] = useState(0);
-  const slotGranted = useCanvasSlot(visible);
-  const active = visible && slotGranted;
+  const [retryKey, setRetryKey] = useState(0);
+  const streamRef = useRef<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
 
-  const handleRetry = () => {
-    setError(null);
-    setLoading(true);
-    setForceKey((k) => k + 1);
-  };
+  const { containerRef, rendererRef, active, glError } = useShaderCanvas({
+    fragmentShader,
+    uniforms,
+    canvasClassName: className,
+    onCompileError: (msg) => {
+      if (msg) {
+        setError('shader');
+        setLoading(false);
+      }
+    },
+  });
 
-  // Delayed visibility observer
+  // glError（WebGL 不可用 / context lost）映射到错误态
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const raf = requestAnimationFrame(() => {
-      observerRef.current = new IntersectionObserver(
-        ([e]) => {
-          if (!e) return;
-          setVisible(e.isIntersecting);
-        },
-        {
-          threshold: 0,
-        },
-      );
-      observerRef.current.observe(el);
-    });
-
-    return () => {
-      cancelAnimationFrame(raf);
-      observerRef.current?.disconnect();
-    };
-  }, []);
-
-  // Renderer + camera lifecycle
-  useEffect(() => {
-    if (!active) {
-      rendererRef.current?.dispose();
-      rendererRef.current = null;
-      if (canvasRef.current) {
-        canvasRef.current.remove();
-        canvasRef.current = null;
-      }
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((t) => t.stop());
-        streamRef.current = null;
-      }
-      if (videoRef.current) {
-        videoRef.current.pause();
-        videoRef.current.srcObject = null;
-        videoRef.current = null;
-      }
-      return;
+    if (glError === 'WebGL not supported') {
+      setError('nogl');
+      setLoading(false);
     }
+  }, [glError]);
 
-    const container = containerRef.current;
-    if (!container) return;
+  // 摄像头生命周期：active 时开启，失活/卸载时停止
+  useEffect(() => {
+    if (!active) return;
 
     if (!navigator.mediaDevices) {
       setError('insecure');
@@ -105,29 +59,7 @@ export function WebcamCapture({
     }
 
     let cancelled = false;
-
-    // Create canvas — CSS-sized, pixel size handled by renderer
-    const canvas = document.createElement('canvas');
-    canvas.className = `shader-canvas ${className}`;
-    container.appendChild(canvas);
-    canvasRef.current = canvas;
-
-    const renderer = new WebGLRenderer({
-      canvas,
-      fragmentSource: fragRef.current,
-      useTexture: true,
-      onError: (msg) => {
-        if (msg) {
-          setError(msg.includes('compile') || msg.includes('link') ? 'shader' : 'lost');
-          setLoading(false);
-        }
-      },
-    });
-    renderer.customValues = { ...uniformsRef.current };
-    rendererRef.current = renderer;
-    renderer.start();
-
-    // Setup camera
+    const renderer = rendererRef.current;
     const video = document.createElement('video');
     video.autoplay = true;
     video.playsInline = true;
@@ -135,13 +67,13 @@ export function WebcamCapture({
     video.setAttribute('playsinline', '');
     video.addEventListener('loadeddata', () => setLoading(false), { once: true });
     videoRef.current = video;
-    renderer.videoElement = video;
+    renderer?.setVideoTexture(video);
 
     navigator.mediaDevices
       .getUserMedia({ video: { width: 640, height: 480 } })
       .then((stream) => {
         if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
+          stream.getTracks().forEach((track) => track.stop());
           return;
         }
         streamRef.current = stream;
@@ -153,43 +85,30 @@ export function WebcamCapture({
           }
         });
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err.name === 'NotAllowedError' ? 'denied' : 'unavailable');
+          const name = err instanceof DOMException ? err.name : '';
+          setError(name === 'NotAllowedError' ? 'denied' : 'unavailable');
           setLoading(false);
         }
       });
 
     return () => {
       cancelled = true;
-      renderer.dispose();
-      rendererRef.current = null;
-      if (canvasRef.current) {
-        canvasRef.current.remove();
-        canvasRef.current = null;
-      }
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((t) => t.stop());
-        streamRef.current = null;
-      }
-      if (videoRef.current) {
-        videoRef.current.pause();
-        videoRef.current.srcObject = null;
-      }
+      renderer?.setVideoTexture(null);
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+      video.pause();
+      video.srcObject = null;
+      videoRef.current = null;
     };
-  }, [active, forceKey, className]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [active, retryKey, rendererRef]);
 
-  // Sync uniforms
-  useEffect(() => {
-    if (!rendererRef.current) return;
-    rendererRef.current.customValues = { ...uniforms };
-  }, [uniforms]);
-
-  // Live-edit recompile
-  useEffect(() => {
-    if (!rendererRef.current) return;
-    rendererRef.current.setSource(fragmentShader);
-  }, [fragmentShader]);
+  const handleRetry = () => {
+    setError(null);
+    setLoading(true);
+    setRetryKey((k) => k + 1);
+  };
 
   if (error) {
     return (
