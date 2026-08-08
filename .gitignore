@@ -25,3 +25,7 @@ dist-ssr
 
 # Superpowers brainstorming/planning artifacts
 .superpowers/
+
+# Playwright
+test-results
+playwright-report
