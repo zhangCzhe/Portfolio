@@ -559,6 +559,121 @@ input[type='range']::-moz-range-thumb {
 }
 
 /* ================================================================
+   Shader Controls — gallery（浅色）/ room（展厅暗色）双变体
+   ================================================================ */
+
+.shader-controls {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shader-controls__heading {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--color-text-tertiary);
+}
+
+.shader-controls__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.shader-controls__preset {
+  padding: 2px 10px;
+  font-size: 11px;
+  border-radius: 9999px;
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.shader-controls__preset:hover {
+  border-color: var(--color-text-tertiary);
+}
+
+.shader-controls__preset.active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.shader-controls__sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.shader-controls__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shader-controls__name {
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  width: 56px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.shader-controls__row input[type='range'] {
+  flex: 1;
+}
+
+.shader-controls__value {
+  font-size: 10px;
+  color: var(--color-text-secondary);
+  width: 32px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* 展厅暗色变体 */
+.shader-controls--room .shader-controls__heading {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.shader-controls--room .shader-controls__name,
+.shader-controls--room .shader-controls__value {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.shader-controls--room .shader-controls__preset {
+  border-color: rgba(255, 255, 255, 0.22);
+  color: var(--color-room-text);
+}
+
+.shader-controls--room .shader-controls__preset:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.shader-controls--room .shader-controls__preset.active {
+  border-color: var(--color-room-accent);
+  color: var(--color-room-accent);
+}
+
+.shader-controls--room input[type='range'] {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.shader-controls--room input[type='range']::-webkit-slider-thumb {
+  background: var(--color-room-accent);
+}
+
+.shader-controls--room input[type='range']::-moz-range-thumb {
+  background: var(--color-room-accent);
+}
+
+/* ================================================================
    Easing curves
    ================================================================ */
 
