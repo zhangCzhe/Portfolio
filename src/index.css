@@ -1,45 +1,39 @@
 @import 'tailwindcss';
 
 /* ================================================================
-   Apple HIG Design System — Dark Mode Primary
+   美术馆设计系统 — 浅色唯一主题（全站唯一暗空间 = 展厅模式）
    ================================================================ */
 
 @theme {
-  /* Background layers */
-  --color-bg-primary: #000000;
-  --color-bg-secondary: #1c1c1e;
-  --color-bg-tertiary: #2c2c2e;
-  --color-bg-quaternary: #3a3a3c;
+  /* 纸白基调 */
+  --color-bg-primary: #f7f4ee;
+  --color-bg-secondary: #efeadf;
+  --color-mat: #ffffff;
 
-  /* Text layers — rgba for natural blending */
-  --color-text-primary: rgba(255, 255, 255, 0.92);
-  --color-text-secondary: rgba(255, 255, 255, 0.65);
-  --color-text-tertiary: rgba(255, 255, 255, 0.38);
-  --color-text-quaternary: rgba(255, 255, 255, 0.18);
+  /* 墨色文字 */
+  --color-text-primary: #221f18;
+  --color-text-secondary: #6b6353;
+  --color-text-tertiary: #a39a86;
 
-  /* Accent — SF Blue */
-  --color-accent: #0a84ff;
-  --color-accent-hover: #409cff;
+  /* 点缀 */
+  --color-accent: #8a6d3b;
+  --color-frame: #3d332a;
+  --color-border: #ddd5c5;
 
-  /* Semantic */
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-border-hover: rgba(255, 255, 255, 0.16);
-  --color-border-subtle: rgba(255, 255, 255, 0.1);
-  --color-glass-bg: rgba(0, 0, 0, 0.8);
+  /* 展厅模式 */
+  --color-room-bg: #101014;
+  --color-room-text: rgba(255, 255, 255, 0.92);
+  --color-room-accent: #e8b4c8;
 
-  /* Interaction surfaces (theme-aware) */
-  --color-hover: rgba(255, 255, 255, 0.06);
-  --color-hover-strong: rgba(255, 255, 255, 0.1);
-  --color-scrollbar: rgba(255, 255, 255, 0.2);
-  --color-scrollbar-hover: rgba(255, 255, 255, 0.35);
-  --color-scrollbar-track: rgba(255, 255, 255, 0.04);
-  --color-card-hover: rgba(255, 255, 255, 0.08);
-  --color-card-shadow: rgba(0, 0, 0, 0.3);
+  /* 交互表面 */
+  --color-hover: rgba(34, 31, 24, 0.05);
+  --color-hover-strong: rgba(34, 31, 24, 0.09);
+  --color-scrollbar: rgba(34, 31, 24, 0.18);
+  --color-scrollbar-hover: rgba(34, 31, 24, 0.32);
 
   /* Typography */
-  --font-sans:
-    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'PingFang SC', 'Microsoft YaHei',
-    'Helvetica Neue', sans-serif;
+  --font-display: 'Playfair Display', 'Noto Serif SC', 'Songti SC', 'SimSun', Georgia, serif;
+  --font-body: 'EB Garamond', 'Songti SC', 'SimSun', Georgia, serif;
   --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Source Code Pro', monospace;
 
   /* Layout */
@@ -53,36 +47,8 @@
   --radius-full: 9999px;
 }
 
-/* Light theme overrides */
-.light {
-  --color-bg-primary: #ffffff;
-  --color-bg-secondary: #f5f5f7;
-  --color-bg-tertiary: #e8e8ed;
-  --color-bg-quaternary: #d2d2d7;
-  --color-text-primary: rgba(0, 0, 0, 0.88);
-  --color-text-secondary: rgba(0, 0, 0, 0.58);
-  --color-text-tertiary: rgba(0, 0, 0, 0.3);
-  --color-text-quaternary: rgba(0, 0, 0, 0.15);
-  --color-accent: #0071e3;
-  --color-accent-hover: #0077ed;
-  --color-border: rgba(0, 0, 0, 0.08);
-  --color-border-hover: rgba(0, 0, 0, 0.16);
-  --color-border-subtle: rgba(0, 0, 0, 0.1);
-  --color-glass-bg: rgba(255, 255, 255, 0.8);
-  --color-hover: rgba(0, 0, 0, 0.05);
-  --color-hover-strong: rgba(0, 0, 0, 0.08);
-  --color-scrollbar: rgba(0, 0, 0, 0.2);
-  --color-scrollbar-hover: rgba(0, 0, 0, 0.35);
-  --color-scrollbar-track: rgba(0, 0, 0, 0.04);
-  --color-card-hover: rgba(0, 0, 0, 0.03);
-  --color-card-shadow: rgba(0, 0, 0, 0.1);
-}
-
 /* ================================================================
-   Reset & Base
-   (Tailwind v4 preflight already resets margins/padding/box-sizing —
-    a hand-rolled un-layered `*` reset would override layered utilities
-    like .mx-auto, so we intentionally do NOT re-add one here)
+   Base
    ================================================================ */
 
 html {
@@ -92,11 +58,10 @@ html {
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
   font-size: 16px;
-  line-height: 1.6;
+  line-height: 1.7;
   font-weight: 400;
-  letter-spacing: 0;
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   min-height: 100vh;
@@ -106,63 +71,12 @@ body {
   min-height: 100vh;
 }
 
-/* ================================================================
-   Typography Scale — Apple HIG
-   ================================================================ */
-
 h1,
-.text-hero {
-  font-size: clamp(48px, 8vw, 96px);
-  font-weight: 300;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
-
 h2,
-.text-section {
-  font-size: 40px;
-  font-weight: 300;
-  line-height: 1.15;
-  letter-spacing: -0.01em;
+h3 {
+  font-family: var(--font-display);
 }
 
-h3,
-.text-chapter {
-  font-size: 28px;
-  font-weight: 400;
-  line-height: 1.2;
-}
-
-h4,
-.text-title {
-  font-size: 20px;
-  font-weight: 500;
-  line-height: 1.3;
-}
-
-.text-body {
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.6;
-}
-
-.text-caption {
-  font-size: 14px;
-  font-weight: 400;
-  line-height: 1.5;
-  color: var(--color-text-secondary);
-}
-
-.text-label {
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.4;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-text-tertiary);
-}
-
-/* Code */
 code,
 pre,
 .mono {
@@ -172,8 +86,175 @@ pre,
   letter-spacing: 0.01em;
 }
 
+section[id] {
+  scroll-margin-top: var(--nav-height);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 /* ================================================================
-   Apple Glass-morphism
+   Shader Canvas
+   ================================================================ */
+
+.shader-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ================================================================
+   Button — 美术馆黄铜描边
+   ================================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-accent);
+  background: transparent;
+  color: var(--color-accent);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.btn:hover {
+  background: var(--color-accent);
+  color: #ffffff;
+}
+
+/* ================================================================
+   Scrollbar
+   ================================================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-scrollbar-hover);
+}
+
+/* ================================================================
+   Slider — 美术馆基底（黄铜 thumb、纸色细轨道）
+   ================================================================ */
+
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: var(--color-border);
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+
+input[type='range']::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  border: none;
+  cursor: pointer;
+}
+
+/* ================================================================
+   WebGL Fallback（纸白）
+   ================================================================ */
+
+.webgl-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg-secondary);
+  color: var(--color-text-tertiary);
+  font-size: 14px;
+}
+
+/* ================================================================
+   Skeleton loading（纸面 shimmer）
+   ================================================================ */
+
+.skeleton {
+  background: linear-gradient(
+    100deg,
+    var(--color-bg-secondary) 40%,
+    var(--color-mat) 50%,
+    var(--color-bg-secondary) 60%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -80% 0;
+  }
+}
+
+/* ================================================================
+   Easing curves
+   ================================================================ */
+
+:root {
+  --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-move: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-press: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ================================================================
+   prefers-reduced-motion 全局降级
+   ================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* ================================================================
+   Legacy — 旧组件过渡样式（Task 11 整块删除）
+   注意：引用了已删除 token 的声明会静默失效（仅外观，不影响功能）
    ================================================================ */
 
 .glass {
@@ -182,10 +263,6 @@ pre,
   background: var(--color-glass-bg);
   border-bottom: 1px solid var(--color-border);
 }
-
-/* ================================================================
-   Card Design — Apple Notes / Settings style
-   ================================================================ */
 
 .card {
   background: var(--color-bg-secondary);
@@ -199,19 +276,9 @@ pre,
 }
 
 .card:hover {
-  background: var(--color-card-hover);
-  border-color: var(--color-border-hover);
+  border-color: var(--color-border);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px var(--color-card-shadow);
 }
-
-.card-interactive {
-  cursor: pointer;
-}
-
-/* ================================================================
-   Navigation
-   ================================================================ */
 
 .nav {
   position: fixed;
@@ -242,49 +309,6 @@ pre,
 
 .nav-link.active {
   color: var(--color-accent);
-  background: rgba(10, 132, 255, 0.12);
-}
-
-/* ================================================================
-   Buttons
-   ================================================================ */
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 24px;
-  font-size: 15px;
-  font-weight: 500;
-  border-radius: var(--radius-full);
-  border: none;
-  cursor: pointer;
-  transition:
-    transform 0.12s ease,
-    background 0.15s ease,
-    opacity 0.15s ease;
-}
-
-.btn:active {
-  transform: scale(0.96);
-}
-
-.btn-primary {
-  background: var(--color-accent);
-  color: #ffffff;
-}
-
-.btn-primary:hover {
-  background: var(--color-accent-hover);
-}
-
-.btn-ghost {
-  background: transparent;
-  color: var(--color-accent);
-}
-
-.btn-ghost:hover {
-  background: rgba(10, 132, 255, 0.08);
 }
 
 .btn-icon {
@@ -309,10 +333,6 @@ pre,
   color: var(--color-text-primary);
 }
 
-/* ── Section layout — used by ShaderSection.tsx ── */
-section[id] {
-  scroll-margin-top: var(--nav-height);
-}
 .section-title {
   font-size: clamp(28px, 5vw, 40px);
   font-weight: 300;
@@ -320,44 +340,13 @@ section[id] {
   letter-spacing: -0.01em;
   margin-bottom: 12px;
 }
+
 .section-desc {
   font-size: clamp(15px, 2vw, 18px);
   line-height: 1.5;
   color: var(--color-text-secondary);
   max-width: 560px;
 }
-
-/* ================================================================
-   Shader Canvas
-   ================================================================ */
-
-.shader-canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-}
-
-/* ================================================================
-   Scrollbar — Apple style
-   ================================================================ */
-
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: var(--color-scrollbar);
-  border-radius: 3px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-scrollbar-hover);
-}
-
-/* ================================================================
-   Entry Page
-   ================================================================ */
 
 .entry-page {
   position: relative;
@@ -410,10 +399,6 @@ section[id] {
   background: linear-gradient(to bottom, rgba(255, 255, 255, 0.35), transparent);
 }
 
-/* ================================================================
-   Series Carousel — horizontal scroll with wheel support
-   ================================================================ */
-
 .carousel {
   display: flex;
   gap: 16px;
@@ -432,7 +417,7 @@ section[id] {
   height: 8px;
 }
 .carousel::-webkit-scrollbar-track {
-  background: var(--color-scrollbar-track);
+  background: transparent;
   border-radius: 4px;
 }
 .carousel::-webkit-scrollbar-thumb {
@@ -443,7 +428,6 @@ section[id] {
   background: var(--color-scrollbar-hover);
 }
 
-/* Firefox scrollbar */
 .carousel {
   scrollbar-width: thin;
   scrollbar-color: var(--color-scrollbar) transparent;
@@ -460,81 +444,6 @@ section[id] {
     padding-bottom: 12px;
   }
 }
-
-/* ── Focus-visible (keyboard accessibility) ── */
-:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-
-/* ================================================================
-   Slider — custom range input
-   ================================================================ */
-
-input[type='range'] {
-  -webkit-appearance: none;
-  appearance: none;
-  height: 4px;
-  background: var(--color-bg-quaternary);
-  border-radius: 2px;
-  outline: none;
-}
-
-input[type='range']::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: var(--color-accent);
-  cursor: pointer;
-  transition: transform 0.12s ease;
-}
-
-input[type='range']::-webkit-slider-thumb:hover {
-  transform: scale(1.15);
-}
-
-/* ================================================================
-   WebGL Fallback
-   ================================================================ */
-
-.webgl-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-bg-secondary);
-  color: var(--color-text-tertiary);
-  font-size: 14px;
-}
-
-/* ================================================================
-   Skeleton loading
-   ================================================================ */
-
-.skeleton {
-  background: linear-gradient(
-    100deg,
-    var(--color-bg-secondary) 40%,
-    var(--color-bg-tertiary) 50%,
-    var(--color-bg-secondary) 60%
-  );
-  background-size: 200% 100%;
-  animation: skeleton-shimmer 1.4s ease infinite;
-}
-
-@keyframes skeleton-shimmer {
-  0% {
-    background-position: 120% 0;
-  }
-  100% {
-    background-position: -80% 0;
-  }
-}
-
-/* ================================================================
-   Carousel controls (arrows + edge fades)
-   ================================================================ */
 
 .carousel-wrap {
   position: relative;
@@ -572,9 +481,7 @@ input[type='range']::-webkit-slider-thumb:hover {
   height: 36px;
   border-radius: var(--radius-full);
   border: 1px solid var(--color-border);
-  background: var(--color-glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--color-mat);
   color: var(--color-text-primary);
   cursor: pointer;
   display: flex;
@@ -604,38 +511,6 @@ input[type='range']::-webkit-slider-thumb:hover {
     display: none;
   }
 }
-
-/* ================================================================
-   ui-animation skill: easing curves
-   ================================================================ */
-
-:root {
-  --ease-enter: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-move: cubic-bezier(0.25, 1, 0.5, 1);
-  --ease-press: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* ================================================================
-   ui-animation skill: prefers-reduced-motion
-   ================================================================ */
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-  html {
-    scroll-behavior: auto;
-  }
-}
-
-/* ================================================================
-   ui-animation skill: disable transitions during theme switch
-   ================================================================ */
 
 [data-theme-switching] * {
   transition: none !important;
