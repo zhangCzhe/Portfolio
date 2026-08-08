@@ -451,6 +451,114 @@ input[type='range']::-moz-range-thumb {
 }
 
 /* ================================================================
+   Entry Hall — 浅色入口大厅
+   ================================================================ */
+
+.entry-hall {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--color-bg-primary);
+}
+
+.entry-hall__nogl-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background: var(--color-bg-primary);
+}
+
+.entry-hall__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to bottom,
+    rgba(247, 244, 238, 0.35) 0%,
+    transparent 40%,
+    rgba(247, 244, 238, 0.6) 100%
+  );
+}
+
+.entry-hall__content {
+  position: absolute;
+  bottom: 12%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 0 48px;
+  max-width: 900px;
+}
+
+.entry-hall__kicker {
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-bottom: 14px;
+}
+
+.entry-hall__title {
+  font-family: var(--font-display);
+  font-size: clamp(44px, 7vw, 88px);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--color-text-primary);
+  margin-bottom: 20px;
+}
+
+.entry-hall__nogl-note {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+  max-width: 420px;
+  margin-bottom: 16px;
+}
+
+.entry-hall__hint {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--color-text-tertiary);
+  font-size: 13px;
+  margin-top: 40px;
+}
+
+.entry-hall__hint-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--color-text-tertiary), transparent);
+}
+
+.entry-hall__enter {
+  margin-top: 28px;
+  padding: 12px 36px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  color: var(--color-accent);
+  background: transparent;
+  border: 1px solid var(--color-accent);
+  border-radius: 9999px;
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.entry-hall__enter:hover {
+  background: var(--color-accent);
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .entry-hall__content {
+    padding: 0 24px;
+  }
+}
+
+/* ================================================================
    Easing curves
    ================================================================ */
 
