@@ -2868,7 +2868,11 @@ export function FocusRoom({ demo, kicker, variant, onClose }: FocusRoomProps) {
         type="button"
         className="focus-room__close"
         aria-label={t('focus.close')}
-        onClick={onClose}
+        onClick={(e) => {
+          // 阻止冒泡：root 的 onClick 也是 onClose，否则会触发两次
+          e.stopPropagation();
+          onClose();
+        }}
       >
         ×
       </button>
