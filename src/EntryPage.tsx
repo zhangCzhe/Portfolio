@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ShaderBackground } from './components/shader/ShaderBackground';
+import { isWebGLSupported } from './engine/support';
 import nebulaShader from './shaders/background/nebula.glsl?raw';
 
 interface EntryPageProps {
@@ -14,9 +15,7 @@ export default function EntryPage({ onEnter }: EntryPageProps) {
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    const c = document.createElement('canvas');
-    const gl = c.getContext('webgl2') || c.getContext('webgl');
-    if (!gl) setWebglOk(false);
+    if (!isWebGLSupported()) setWebglOk(false);
   }, []);
 
   // Scroll/touch/keyboard to enter

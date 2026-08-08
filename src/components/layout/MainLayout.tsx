@@ -1,10 +1,34 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 import Navigation from './Navigation';
 import ShaderSection from '../sections/ShaderSection';
 import { getCategories } from '../../shader/registry';
+import { isWebGLSupported } from '../../engine/support';
 
 export default function MainLayout() {
+  const { t } = useTranslation();
   const categories = getCategories();
+  const [webglOk] = useState(() => isWebGLSupported());
+
+  if (!webglOk) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          background: 'var(--color-bg-primary)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 24,
+        }}
+      >
+        <p style={{ fontSize: 15, color: 'var(--color-text-secondary)' }}>
+          {t('webgl.unsupported')}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <motion.div

@@ -70,7 +70,7 @@ export function ShaderCodeEditor({ code, onChange, onReset, error }: ShaderCodeE
       });
 
       viewRef.current = new EditorView({
-        doc: code,
+        doc: codeRef.current,
         extensions: [
           ext,
           oneDark,
@@ -98,7 +98,7 @@ export function ShaderCodeEditor({ code, onChange, onReset, error }: ShaderCodeE
       viewRef.current?.destroy();
       viewRef.current = null;
     };
-  }, [open]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [open, handleChange]);
 
   // Sync external code changes into editor (e.g. after reset)
   useEffect(() => {

@@ -27,6 +27,8 @@ export function WebcamCapture({ fragmentShader, uniforms, className = '' }: Webc
   const [retryKey, setRetryKey] = useState(0);
   const streamRef = useRef<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const shaderRef = useRef(fragmentShader);
+  shaderRef.current = fragmentShader;
 
   const { containerRef, rendererRef, active, glError } = useShaderCanvas({
     fragmentShader,
@@ -67,7 +69,23 @@ export function WebcamCapture({ fragmentShader, uniforms, className = '' }: Webc
     video.setAttribute('playsinline', '');
     video.addEventListener('loadeddata', () => setLoading(false), { once: true });
     videoRef.current = video;
-    renderer?.setVideoTexture(video);
+    if (renderer) {
+      // 重试时重新编译，避免 shader 错误后 retry 得到无 program 的空画布
+      try {
+        renderer.setFragmentShader(shaderRef.current);
+      } catch {
+        if (!cancelled) {
+          setError('shader');
+          setLoading(false);
+          return;
+        }
+      }
+      renderer.setVideoTexture(video);
+      renderer.onContextChange('lost', () => {
+        setError('lost');
+        setLoading(false);
+      });
+    }
 
     navigator.mediaDevices
       .getUserMedia({ video: { width: 640, height: 480 } })
