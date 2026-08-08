@@ -24,7 +24,7 @@
   - 加载：Google Fonts `<link>`（Playfair Display + EB Garamond + Noto Serif SC），失败回退系统衬线，不阻塞渲染
 - 画廊墙网格：桌面 3 列（≥1024px）/ 平板 2 列（≥640px）/ 手机 1 列；相邻展厅 `bg-primary` / `bg-secondary` 交替
 - 展厅模式：桌面左画布 58% + 右栏 27% 单栏滚动；移动端上下堆叠（画布 50vh 在上）；背景 `rgba(16, 16, 20, 0.97)`；打开时 body `overflow: hidden`；关闭 = × / Esc / 点画布外暗区；参数**不回写**卡片
-- i18n 新 key（spec §5，逐字）：`museum.name` = "Shader 美术馆"/"Shader Museum"；`museum.hall.*` = 第一~四展厅 / Gallery I~IV；`artwork.medium` = "Fragment Shader"；`focus.close` = 关闭/"Close"。现有 `nav.*`、`common.*`、`editor.*`、`webcam.*`、`canvas.*`、`webgl.*` 全部保留
+- i18n 新 key（spec §5，逐字）：`museum.name` = "Shader 美术馆"/"Shader Museum"；`museum.hall.*` = 第一~~四展厅 / Gallery I~~IV；`artwork.medium` = "Fragment Shader"；`focus.close` = 关闭/"Close"。现有 `nav.*`、`common.*`、`editor.*`、`webcam.*`、`canvas.*`、`webgl.*` 全部保留
 - 保留机制（spec §1）：`--ease-enter/move/press`、`prefers-reduced-motion` 降级、`:focus-visible`、骨架屏 shimmer、WebGL fallback、scrollbar（换色保留）
 - 删除（spec §1/§2）：`.light` 覆盖块、`useTheme`、主题切换按钮、`.glass`、CarouselRow 全部逻辑、series 分组标题渲染、卡片上的"查看代码"按钮
 - 零 `!` 非空断言、零 eslint-disable（全仓库含测试，延续子项目 1 基线）
@@ -38,24 +38,24 @@
 
 ## 文件结构总览
 
-| 文件 | 责任 | 任务 |
-|------|------|------|
-| `src/index.css` | 设计 token + 全部组件 CSS（逐任务追加） | 1, 3-9, 11 |
-| `index.html` | Google Fonts link + title | 1 |
-| `src/i18n/index.ts` | museum/artwork/focus 新 key | 2, 11 |
-| `tests/helpers/fakeIntersectionObserver.ts` | jsdom IntersectionObserver 假实现（共享） | 3 |
-| `src/components/shader/FramedArtwork.tsx` | 装裱卡片（替换 DemoCard） | 3 |
-| `src/components/sections/GallerySection.tsx` | 展厅标题区 + 网格画廊墙（替换 ShaderSection） | 4 |
-| `src/components/layout/MuseumNav.tsx` | 双形态导航（替换 Navigation） | 5 |
-| `src/EntryHall.tsx` + `src/shaders/background/nebula-light.glsl` | 浅色入口大厅（替换 EntryPage） | 6 |
-| `src/components/shader/ShaderControls.tsx` | 加 `variant: 'gallery' \| 'room'` | 7 |
-| `src/components/shader/ShaderCodeEditor.tsx` | 加 `alwaysOpen` prop | 8 |
-| `src/hooks/useCanvasSlot.ts` / `useShaderCanvas.ts` | `focusCanvasPool` + `pool` 选项 | 9 |
-| `src/components/focus/FocusRoom.tsx` | 展厅模式 overlay | 9 |
-| `src/components/layout/MainLayout.tsx` / `src/App.tsx` | 接线 + focusedDemo 状态 | 10 |
-| 删除：DemoCard / ShaderSection / Navigation / EntryPage / useTheme | 旧体系 | 10, 11 |
-| `src/shader/types.ts` + 4 个 category 文件 | 删 `tone` 字段 | 11 |
-| `tests/e2e/smoke.spec.ts` | 展厅流程 e2e | 12 |
+| 文件                                                               | 责任                                          | 任务       |
+| ------------------------------------------------------------------ | --------------------------------------------- | ---------- |
+| `src/index.css`                                                    | 设计 token + 全部组件 CSS（逐任务追加）       | 1, 3-9, 11 |
+| `index.html`                                                       | Google Fonts link + title                     | 1          |
+| `src/i18n/index.ts`                                                | museum/artwork/focus 新 key                   | 2, 11      |
+| `tests/helpers/fakeIntersectionObserver.ts`                        | jsdom IntersectionObserver 假实现（共享）     | 3          |
+| `src/components/shader/FramedArtwork.tsx`                          | 装裱卡片（替换 DemoCard）                     | 3          |
+| `src/components/sections/GallerySection.tsx`                       | 展厅标题区 + 网格画廊墙（替换 ShaderSection） | 4          |
+| `src/components/layout/MuseumNav.tsx`                              | 双形态导航（替换 Navigation）                 | 5          |
+| `src/EntryHall.tsx` + `src/shaders/background/nebula-light.glsl`   | 浅色入口大厅（替换 EntryPage）                | 6          |
+| `src/components/shader/ShaderControls.tsx`                         | 加 `variant: 'gallery' \| 'room'`             | 7          |
+| `src/components/shader/ShaderCodeEditor.tsx`                       | 加 `alwaysOpen` prop                          | 8          |
+| `src/hooks/useCanvasSlot.ts` / `useShaderCanvas.ts`                | `focusCanvasPool` + `pool` 选项               | 9          |
+| `src/components/focus/FocusRoom.tsx`                               | 展厅模式 overlay                              | 9          |
+| `src/components/layout/MainLayout.tsx` / `src/App.tsx`             | 接线 + focusedDemo 状态                       | 10         |
+| 删除：DemoCard / ShaderSection / Navigation / EntryPage / useTheme | 旧体系                                        | 10, 11     |
+| `src/shader/types.ts` + 4 个 category 文件                         | 删 `tone` 字段                                | 11         |
+| `tests/e2e/smoke.spec.ts`                                          | 展厅流程 e2e                                  | 12         |
 
 ---
 
@@ -64,19 +64,23 @@
 Token 先行。重写 `src/index.css`：新 @theme、新 base/typography、换色的保留机制（scrollbar/skeleton/fallback/slider）、museum 风 `.btn`；旧组件 CSS 块原样保留在文件尾部 `Legacy` 区（Task 11 删除），保证过渡期内旧组件仍有样式。`index.html` 加 Google Fonts。
 
 **Files:**
+
 - Modify: `src/index.css`（整体重写）
 - Modify: `index.html`
 
 **Interfaces:**
+
 - Consumes: 无（首个任务）
 - Produces: 全部后续任务依赖的 token——`--color-bg-primary/secondary/mat`、`--color-text-primary/secondary/tertiary`、`--color-accent/frame/border`、`--color-room-bg/text/accent`、`--font-display/body/mono`、`--nav-height`、`--radius-*`、`--ease-*`；CSS 类 `.btn`、`.skeleton`、`.webgl-fallback`、`.shader-canvas`；全局 `input[type='range']` 美术馆滑杆基底
 
 - [ ] **Step 1: 验证旧排版工具类无引用（可安全删除）**
 
 Run:
+
 ```bash
 cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && grep -rn "text-hero\|text-section\|text-chapter\|text-title\b\|text-body\|text-caption\|text-label\|btn-primary\|btn-ghost\|card-interactive" src/ --include="*.tsx" --include="*.ts" || echo "SAFE: no references"
 ```
+
 Expected: 仅输出 SAFE（这些类只在 CSS 里定义，无 TSX 引用；`.text-title` 注意与 Tailwind 工具类区分，用 `\b` 边界）。若有引用，保留对应类到 Legacy 区。
 
 - [ ] **Step 2: 重写 `src/index.css`**
@@ -118,8 +122,7 @@ Expected: 仅输出 SAFE（这些类只在 CSS 里定义，无 TSX 引用；`.te
   --color-scrollbar-hover: rgba(34, 31, 24, 0.32);
 
   /* Typography */
-  --font-display:
-    'Playfair Display', 'Noto Serif SC', 'Songti SC', 'SimSun', Georgia, serif;
+  --font-display: 'Playfair Display', 'Noto Serif SC', 'Songti SC', 'SimSun', Georgia, serif;
   --font-body: 'EB Garamond', 'Songti SC', 'SimSun', Georgia, serif;
   --font-mono: 'SF Mono', 'Cascadia Code', 'Consolas', 'Source Code Pro', monospace;
 
@@ -633,9 +636,11 @@ input[type='range']::-moz-range-thumb {
 - [ ] **Step 4: 门 — 全绿后提交**
 
 Run:
+
 ```bash
 cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && npm run format && npm run lint && npx tsc -b && npm test
 ```
+
 Expected: 全绿（旧组件仍在，只是外观变为过渡态——token 换色生效，玻璃拟态等失效属预期）
 
 - [ ] **Step 5: Commit**
@@ -649,10 +654,12 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add src/index.css
 ### Task 2: i18n museum 新 key
 
 **Files:**
+
 - Modify: `src/i18n/index.ts`
 - Test: `tests/unit/i18n.test.ts`（新建）
 
 **Interfaces:**
+
 - Consumes: 无
 - Produces: `museum.name`、`museum.hall.basics/paintings/effects/filters`、`artwork.medium`、`focus.close`（zh + en）——Task 3/4/5/9 消费
 
@@ -755,12 +762,14 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add src/i18n/inde
 白 mat + 细深色框 + 馆签 + 参数滑杆；画布区点击/键盘开展厅；**不含**代码编辑器（spec §3）。DemoCard 暂留（Task 10 删除）。
 
 **Files:**
+
 - Create: `tests/helpers/fakeIntersectionObserver.ts`
 - Create: `src/components/shader/FramedArtwork.tsx`
 - Modify: `src/index.css`（追加 FramedArtwork 样式块，放在 skeleton 区之后、Easing 区之前）
 - Test: `tests/unit/FramedArtwork.test.tsx`（新建）
 
 **Interfaces:**
+
 - Consumes: Task 1 token/CSS（`.skeleton`、`--color-mat/frame/border/accent`、全局 range 样式）；Task 2 `artwork.medium`；现有 `ShaderCanvas`、`WebcamCapture`、`ShaderControls`、`CanvasErrorBoundary`、`useShaderSource`
 - Produces:
   - `FramedArtwork({ demo: ShaderDemo; variant: 'shader' | 'filter'; onFocus: (demo: ShaderDemo) => void })` —— Task 4 消费
@@ -1082,11 +1091,13 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add tests/helpers
 展厅标题区（黄铜 kicker + 衬线大标题 + 策展导语）+ CSS grid 画廊墙；series 平铺、不渲染分组标题；`alt` 控制交替底色。ShaderSection 暂留（Task 10 删除）。
 
 **Files:**
+
 - Create: `src/components/sections/GallerySection.tsx`
 - Modify: `src/index.css`（FramedArtwork 样式块之后追加）
 - Test: `tests/unit/GallerySection.test.tsx`（新建）
 
 **Interfaces:**
+
 - Consumes: Task 3 `FramedArtwork` + fake IO helper；Task 2 `museum.hall.*`
 - Produces: `GallerySection` default export，props `{ id: ShaderCategoryId; title; titleZh; description; descriptionZh; series: ShaderSeries[]; cardType?: 'shader' | 'filter'; alt?: boolean; onFocus: (demo: ShaderDemo) => void }` —— Task 10 消费；DOM 钩子 `.gallery-section`、`.gallery-section--alt`、`.gallery-wall`、`.framed-artwork`（e2e 消费）
 
@@ -1345,11 +1356,13 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add src/component
 首屏极简馆签（非固定，随滚动画走）+ 滚动后固定栏（纸白底 + 四展厅锚点 + 语言切换）。IntersectionObserver 观察哨兵元素切换形态。无主题切换、无玻璃拟态、无 pill 动画。Navigation 暂留（Task 10 删除）。
 
 **Files:**
+
 - Create: `src/components/layout/MuseumNav.tsx`
 - Modify: `src/index.css`（GallerySection 块之后追加）
 - Test: `tests/unit/MuseumNav.test.tsx`（新建）
 
 **Interfaces:**
+
 - Consumes: Task 2 `museum.name` + 现有 `nav.*` key；fake IO helper
 - Produces: `MuseumNav` default export，props `{ sentinelRef: RefObject<HTMLElement | null> }` —— Task 10 消费（MainLayout 在 `<main>` 顶部渲染哨兵 `div` 并传入 ref）；DOM 钩子 `data-testid="museum-nav-minimal" / "museum-nav-fixed"`
 
@@ -1742,11 +1755,13 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add src/component
 重做 EntryPage：纸白基调、衬线馆名（`museum.name`）、保留全部进入交互与 WebGL 降级。新建 `nebula-light.glsl` 占位（正式视觉属子项目 3）。EntryPage 暂留（Task 10 删除）。
 
 **Files:**
+
 - Create: `src/shaders/background/nebula-light.glsl`
 - Create: `src/EntryHall.tsx`
 - Modify: `src/index.css`（MuseumNav 块之后追加）
 
 **Interfaces:**
+
 - Consumes: Task 1 token；Task 2 `museum.name`；现有 `ShaderBackground`、`isWebGLSupported`、`entry.subtitle/hint/enter`、`webgl.unsupported`
 - Produces: `EntryHall` default export，props `{ onEnter: () => void }` —— Task 10 App 消费；DOM 钩子 `.entry-hall__enter`（e2e 进入按钮）
 
@@ -2067,11 +2082,13 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add src/EntryHall
 加 `variant` prop；把 Tailwind 任意值内联样式换成语义 CSS 类，使展厅暗色换皮成为可能。行为不变（滑杆/预设回调签名不变）。
 
 **Files:**
+
 - Modify: `src/components/shader/ShaderControls.tsx`（整体重写）
 - Modify: `src/index.css`（EntryHall 块之后追加）
 - Test: `tests/unit/ShaderControls.test.tsx`（新建）
 
 **Interfaces:**
+
 - Consumes: Task 1 token + 全局 range 基底
 - Produces: `ShaderControls` 新增可选 prop `variant?: 'gallery' | 'room'`（默认 `'gallery'`），其余 props 签名不变——Task 9 FocusRoom 以 `variant="room"` 消费；FramedArtwork 不传（默认 gallery）
 
@@ -2357,11 +2374,13 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add src/component
 展厅模式里代码直接展开、无折叠切换。`alwaysOpen` 默认 false（现有行为不变）。编辑器容器内联样式换为 `.editor-shell` 类以便展厅内覆盖边框色。
 
 **Files:**
+
 - Modify: `src/components/shader/ShaderCodeEditor.tsx`
 - Modify: `src/index.css`（ShaderControls 块之后追加）
 - Test: `tests/unit/ShaderCodeEditor.test.tsx`（新建）
 
 **Interfaces:**
+
 - Consumes: 现有 CodeMirror 装配逻辑
 - Produces: `ShaderCodeEditor` 新增可选 prop `alwaysOpen?: boolean`——Task 9 FocusRoom 消费；CSS 类 `.editor-shell`（`.focus-room .editor-shell` 覆盖在 Task 9 CSS 中定义）
 
@@ -2472,29 +2491,31 @@ export function ShaderCodeEditor({
 3. 切换按钮仅在非 alwaysOpen 渲染（替换现有 `<button onClick={toggleOpen} ...>...</button>` 整块）：
 
 ```tsx
-        {!alwaysOpen && (
-          <button
-            onClick={toggleOpen}
-            aria-expanded={open}
-            style={{
-              fontSize: 13,
-              fontWeight: 500,
-              color: 'var(--color-accent)',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: 0,
-            }}
-          >
-            {open ? t('common.hideCode') : t('common.viewCode')}
-          </button>
-        )}
+{
+  !alwaysOpen && (
+    <button
+      onClick={toggleOpen}
+      aria-expanded={open}
+      style={{
+        fontSize: 13,
+        fontWeight: 500,
+        color: 'var(--color-accent)',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        padding: 0,
+      }}
+    >
+      {open ? t('common.hideCode') : t('common.viewCode')}
+    </button>
+  );
+}
 ```
 
 4. 编辑器容器内联样式换类（替换 `<div ref={containerRef} style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid var(--color-border)' }} />`）：
 
 ```tsx
-            <div ref={containerRef} className="editor-shell" />
+<div ref={containerRef} className="editor-shell" />
 ```
 
 - [ ] **Step 4: `src/index.css` 追加编辑器样式**（ShaderControls 块之后）
@@ -2529,6 +2550,7 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add src/component
 全站唯一暗空间。左画布 58% + 右栏 27%（kicker/作品名/媒介年份/策展文案/参数面板/常开代码）。Esc/×/暗区关闭；body 滚动锁定；独立 canvas pool；参数不回写。
 
 **Files:**
+
 - Modify: `src/hooks/useCanvasSlot.ts`（追加 `focusCanvasPool`）
 - Modify: `src/hooks/useShaderCanvas.ts`（加 `pool` 选项）
 - Create: `src/components/focus/FocusRoom.tsx`
@@ -2536,6 +2558,7 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add src/component
 - Test: `tests/unit/FocusRoom.test.tsx`（新建）
 
 **Interfaces:**
+
 - Consumes: Task 7 `ShaderControls variant="room"`；Task 8 `ShaderCodeEditor alwaysOpen`；Task 2 `artwork.medium`、`focus.close`；fake IO helper；现有 `useShaderSource`、`CanvasErrorBoundary`、`WebcamCapture`
 - Produces:
   - `focusCanvasPool: CanvasPool`（`src/hooks/useCanvasSlot.ts`）
@@ -2555,15 +2578,20 @@ export const focusCanvasPool = new CanvasPool(1);
 `src/hooks/useShaderCanvas.ts` 三处改动：
 
 1. 顶部 import 加类型：
+
 ```ts
 import type { CanvasPool } from '../engine/CanvasPool';
 ```
+
 2. `UseShaderCanvasOptions` 加字段（放在 `canvasClassName` 之后）：
+
 ```ts
   /** 展厅模式传入 focusCanvasPool；缺省用卡片池 */
   pool?: CanvasPool;
 ```
+
 3. 解构与调用：
+
 ```ts
 export function useShaderCanvas({
   fragmentShader,
@@ -2573,9 +2601,11 @@ export function useShaderCanvas({
   onCompileError,
 }: UseShaderCanvasOptions): UseShaderCanvasResult {
 ```
+
 ```ts
-  const slotGranted = useCanvasSlot(visible, pool);
+const slotGranted = useCanvasSlot(visible, pool);
 ```
+
 （`useCanvasSlot(active, pool = cardCanvasPool)` 的默认参数在实参为 `undefined` 时生效，行为不变。）
 
 - [ ] **Step 2: 写失败测试 `tests/unit/FocusRoom.test.tsx`**
@@ -3017,11 +3047,13 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add src/hooks/use
 新组件全部就位后一次切换：MainLayout 用 MuseumNav/GallerySection/FocusRoom；App 用 EntryHall。删除 Navigation/ShaderSection/DemoCard/EntryPage。无新测试——装配正确性由既有单测回归 + Task 12 e2e 背书。
 
 **Files:**
+
 - Modify: `src/components/layout/MainLayout.tsx`（整体重写）
 - Modify: `src/App.tsx`
 - Delete: `src/components/layout/Navigation.tsx`、`src/components/sections/ShaderSection.tsx`、`src/components/shader/DemoCard.tsx`、`src/EntryPage.tsx`
 
 **Interfaces:**
+
 - Consumes: Task 3/4/5/6/9 全部新组件
 - Produces: 完整可用的美术馆站点（spec §2 信息架构落地）；`focusedDemo` 状态流（spec §5）
 
@@ -3067,9 +3099,7 @@ export default function MainLayout() {
   }
 
   const focusedCategory = focusedDemo
-    ? categories.find((cat) =>
-        cat.series.some((s) => s.demos.some((d) => d.id === focusedDemo.id)),
-      )
+    ? categories.find((cat) => cat.series.some((s) => s.demos.some((d) => d.id === focusedDemo.id)))
     : undefined;
 
   return (
@@ -3149,9 +3179,11 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git rm src/components
 - [ ] **Step 4: 验证无残留引用**
 
 Run:
+
 ```bash
 cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && grep -rn "Navigation\|ShaderSection\|DemoCard\|EntryPage" src/ --include="*.tsx" --include="*.ts" | grep -v "MuseumNav" || echo "CLEAN"
 ```
+
 Expected: `CLEAN`
 
 - [ ] **Step 5: 门 + Commit**
@@ -3168,6 +3200,7 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add -A src/ && gi
 ### Task 11: 残余清理（useTheme / tone / legacy CSS / dead key）
 
 **Files:**
+
 - Delete: `src/hooks/useTheme.ts`
 - Modify: `src/shader/types.ts`（删 `tone` 字段）
 - Modify: `src/shader/categories/basics.ts`、`paintings.ts`、`effects.ts`、`filters.ts`（各删一行 `tone: ...`）
@@ -3175,6 +3208,7 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add -A src/ && gi
 - Modify: `src/index.css`（删 Legacy 整块）
 
 **Interfaces:**
+
 - Consumes: Task 10 完成态
 - Produces: 无新接口；`ShaderCategory` 不再含 `tone`
 
@@ -3183,6 +3217,7 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add -A src/ && gi
 ```bash
 cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git rm src/hooks/useTheme.ts && grep -rn "useTheme" src/ tests/ || echo "CLEAN"
 ```
+
 Expected: `CLEAN`
 
 - [ ] **Step 2: 从 `ShaderCategory` 删除 `tone`**
@@ -3190,7 +3225,7 @@ Expected: `CLEAN`
 `src/shader/types.ts` 中删除：
 
 ```ts
-  tone: 'dark' | 'light';
+tone: 'dark' | 'light';
 ```
 
 4 个 category 文件中各删除对应行（`tone: 'dark',` 或 `tone: 'light',`）：
@@ -3198,6 +3233,7 @@ Expected: `CLEAN`
 ```bash
 cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && grep -n "tone:" src/shader/categories/basics.ts src/shader/categories/paintings.ts src/shader/categories/effects.ts src/shader/categories/filters.ts
 ```
+
 Expected: 各 1 行，用编辑器删除（`filters.ts` 里 "sepia tones" 等文案行含 "tone" 字样但不是 `tone:` 字段，勿误删——grep 模式带冒号已区分）。
 
 - [ ] **Step 3: 删除 `entry.title` key**
@@ -3207,6 +3243,7 @@ Expected: 各 1 行，用编辑器删除（`filters.ts` 里 "sepia tones" 等文
 ```bash
 cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && grep -rn "entry.title" src/ || echo "CLEAN"
 ```
+
 Expected: `CLEAN`
 
 - [ ] **Step 4: 删除 `src/index.css` Legacy 整块**
@@ -3217,9 +3254,11 @@ Expected: `CLEAN`
 - [ ] **Step 5: 验证无 legacy 类残留引用**
 
 Run:
+
 ```bash
 cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && grep -rn "glass\|nav-link\|btn-icon\|carousel\|entry-page\|entry-content\|entry-title\|entry-subtitle\|entry-scroll\|section-title\|section-desc\|theme-switching\|data-theme" src/ --include="*.tsx" --include="*.ts" || echo "CLEAN"
 ```
+
 Expected: `CLEAN`（若有命中，回到对应文件改为美术馆类名后再继续）
 
 - [ ] **Step 6: 门 + Commit**
@@ -3238,9 +3277,11 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add -A src/ && gi
 更新入口选择器（`.entry-page button` → `.entry-hall__enter`）；新增展厅全流程用例；过滤 Google Fonts 离线加载失败的 console error（网络问题 ≠ 站点错误）。
 
 **Files:**
+
 - Modify: `tests/e2e/smoke.spec.ts`（整体重写）
 
 **Interfaces:**
+
 - Consumes: Task 10 完成态的全部 DOM 钩子（`.entry-hall__enter`、`.framed-artwork__canvas`、`data-testid="focus-room"`、`data-testid="focus-room-canvas"`、`canvas.shader-canvas`）
 - Produces: e2e 背书 spec §7 冒烟清单
 
@@ -3252,8 +3293,7 @@ import { test, expect } from '@playwright/test';
 // Google Fonts 在离线/内网环境加载失败会打 console error，与站点本身无关，过滤
 function isFontResourceError(url: string | undefined): boolean {
   return (
-    url !== undefined &&
-    (url.includes('fonts.googleapis.com') || url.includes('fonts.gstatic.com'))
+    url !== undefined && (url.includes('fonts.googleapis.com') || url.includes('fonts.gstatic.com'))
   );
 }
 
@@ -3311,9 +3351,7 @@ test.describe('portfolio smoke', () => {
     expect(width).toBeGreaterThan(0);
   });
 
-  test('clicking an artwork opens the focus room; Escape returns to the wall', async ({
-    page,
-  }) => {
+  test('clicking an artwork opens the focus room; Escape returns to the wall', async ({ page }) => {
     await page.goto('/Portfolio/');
     await page.locator('.entry-hall__enter').click();
     await expect(page.locator('main')).toBeVisible();
@@ -3381,17 +3419,21 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && git add tests/e2e/smo
 - [ ] **Step 1: 全门链**
 
 Run:
+
 ```bash
 cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && npm run lint && npx tsc -b && npm test && npm run format:check && npm run build && npm run check:shaders && npm run test:e2e
 ```
+
 Expected: 全绿。任何一环红了，修到绿为止（修复直接提交 `fix: ...`）。
 
 - [ ] **Step 2: 政策核查**
 
 Run:
+
 ```bash
 cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && grep -rn "= [^=].*!\.\|)!\." src/ --include="*.ts" --include="*.tsx" | grep -v "!==" | grep -v "!=" || echo "NO-BANG-CHECK-DONE"; grep -rn "eslint-disable\|oxlint-disable" src/ tests/ || echo "CLEAN: no lint disables"
 ```
+
 人工扫一眼输出确认无非空断言（`!.` / `)!`）。Expected: 无可疑命中 + 无 lint disable。
 
 - [ ] **Step 3: 交接人工视觉走查**
@@ -3412,6 +3454,7 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && grep -rn "= [^=].*!\.
 ## Self-Review 记录
 
 **Spec 覆盖核对：**
+
 - §1 设计系统 → Task 1（token/字体/保留机制）✓；删 `.light`/`useTheme`/`.glass`/主题切换 → Task 1（CSS）+ Task 10（Navigation 删除）+ Task 11（useTheme）✓
 - §2 入口大厅 → Task 6 ✓；导航双形态 → Task 5 ✓；展厅/网格/series 平铺/交替底色 → Task 4 ✓；页脚 → Task 10（沿用）✓
 - §3 装裱卡片 → Task 3 ✓（装裱/馆签/滑杆/点击隔离/移除代码按钮）
@@ -3425,6 +3468,7 @@ cd /home/zhangchenzhe2/projects/Resume/shader-portfolio && grep -rn "= [^=].*!\.
 **Placeholder 扫描：** 全部代码步骤含完整可粘贴实现；无 TBD/TODO/"适当处理"。
 
 **类型一致性：**
+
 - `FramedArtwork({demo, variant, onFocus})` — Task 3 定义 = Task 4 调用 ✓
 - `GallerySection({id, title, titleZh, description, descriptionZh, series, cardType?, alt?, onFocus})` — Task 4 定义 = Task 10 调用 ✓
 - `MuseumNav({sentinelRef: RefObject<HTMLElement | null>})` — Task 5 定义 = Task 10 传 `RefObject<HTMLDivElement | null>`（协变兼容）✓

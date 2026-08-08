@@ -12,17 +12,17 @@ shader-portfolio 总重构的第 2 个子项目。子项目 1 已交付分层渲
 
 ### 已确认决策（brainstorming 逐项选定）
 
-| # | 问题 | 决策 |
-|---|------|------|
-| 1 | 入口页基调 | 浅色统一，无暗入口 |
-| 2 | 画廊布局 | 网格画廊墙（取消横向 carousel） |
-| 3 | 导航 | 首屏极简馆签 + 滚动后收缩固定栏 |
-| 4 | 装裱样式 | 经典美术馆装裱（白 mat + 细深色框 + 馆签） |
-| 5 | 展厅模式布局 | 左画布 58% + 右栏 27% 单栏滚动 |
-| 6 | 墙面交互 | 卡片保留参数滑杆；代码只在展厅模式 |
-| 7 | 字体 | 现代高对比衬线（Playfair Display + 思源宋体） |
-| 8 | 入口背景 | 保留全屏 shader，浅色调（本子项目用 nebula 浅色变体占位，正式视觉属子项目 3） |
-| 9 | 实现路径 | Token 先行分层构建 |
+| #   | 问题         | 决策                                                                          |
+| --- | ------------ | ----------------------------------------------------------------------------- |
+| 1   | 入口页基调   | 浅色统一，无暗入口                                                            |
+| 2   | 画廊布局     | 网格画廊墙（取消横向 carousel）                                               |
+| 3   | 导航         | 首屏极简馆签 + 滚动后收缩固定栏                                               |
+| 4   | 装裱样式     | 经典美术馆装裱（白 mat + 细深色框 + 馆签）                                    |
+| 5   | 展厅模式布局 | 左画布 58% + 右栏 27% 单栏滚动                                                |
+| 6   | 墙面交互     | 卡片保留参数滑杆；代码只在展厅模式                                            |
+| 7   | 字体         | 现代高对比衬线（Playfair Display + 思源宋体）                                 |
+| 8   | 入口背景     | 保留全屏 shader，浅色调（本子项目用 nebula 浅色变体占位，正式视觉属子项目 3） |
+| 9   | 实现路径     | Token 先行分层构建                                                            |
 
 ## 1. 设计系统（Design Tokens）
 
@@ -33,24 +33,24 @@ shader-portfolio 总重构的第 2 个子项目。子项目 1 已交付分层渲
 ```css
 @theme {
   /* 纸白基调 */
-  --color-bg-primary: #f7f4ee;      /* 纸白（墙面） */
-  --color-bg-secondary: #efeadf;    /* 稍深纸色（交替展厅） */
-  --color-mat: #ffffff;             /* 装裱卡纸白 */
+  --color-bg-primary: #f7f4ee; /* 纸白（墙面） */
+  --color-bg-secondary: #efeadf; /* 稍深纸色（交替展厅） */
+  --color-mat: #ffffff; /* 装裱卡纸白 */
 
   /* 墨色文字 */
-  --color-text-primary: #221f18;    /* 墨色 */
-  --color-text-secondary: #6b6353;  /* 灰墨 */
-  --color-text-tertiary: #a39a86;   /* 淡墨 */
+  --color-text-primary: #221f18; /* 墨色 */
+  --color-text-secondary: #6b6353; /* 灰墨 */
+  --color-text-tertiary: #a39a86; /* 淡墨 */
 
   /* 点缀 */
-  --color-accent: #8a6d3b;          /* 黄铜（kicker、馆签、active、聚焦态） */
-  --color-frame: #3d332a;           /* 画框深木色 */
-  --color-border: #ddd5c5;          /* 纸面分隔线 */
+  --color-accent: #8a6d3b; /* 黄铜（kicker、馆签、active、聚焦态） */
+  --color-frame: #3d332a; /* 画框深木色 */
+  --color-border: #ddd5c5; /* 纸面分隔线 */
 
   /* 展厅模式（全站唯一暗空间） */
   --color-room-bg: #101014;
   --color-room-text: rgba(255, 255, 255, 0.92);
-  --color-room-accent: #e8b4c8;     /* 展厅点缀（滑杆 thumb、标签） */
+  --color-room-accent: #e8b4c8; /* 展厅点缀（滑杆 thumb、标签） */
 }
 ```
 
@@ -184,14 +184,14 @@ focus.close        关闭按钮 aria-label
 
 ## 组件替换总表
 
-| 新组件 | 替换/来源 | 说明 |
-|--------|-----------|------|
-| `FramedArtwork` | `DemoCard` | 白 mat 装裱 + 馆签 + 滑杆 |
-| `GalleryWall` | `CarouselRow`（删除） | CSS grid |
-| `GallerySection` | `ShaderSection` | 展厅标题区 + 画廊墙 |
-| `MuseumNav` | `Navigation` | 双形态 |
-| `FocusRoom` | 全新 | 展厅模式 overlay |
-| `EntryHall` | `EntryPage` 重做 | 浅色大厅 |
+| 新组件           | 替换/来源             | 说明                      |
+| ---------------- | --------------------- | ------------------------- |
+| `FramedArtwork`  | `DemoCard`            | 白 mat 装裱 + 馆签 + 滑杆 |
+| `GalleryWall`    | `CarouselRow`（删除） | CSS grid                  |
+| `GallerySection` | `ShaderSection`       | 展厅标题区 + 画廊墙       |
+| `MuseumNav`      | `Navigation`          | 双形态                    |
+| `FocusRoom`      | 全新                  | 展厅模式 overlay          |
+| `EntryHall`      | `EntryPage` 重做      | 浅色大厅                  |
 
 保留不动：`ShaderCanvas`、`WebcamCapture`、`ShaderControls`（样式换皮）、`ShaderCodeEditor`（移入展厅，暗色主题）、`CanvasErrorBoundary`、`useShaderCanvas` 及全部引擎模块、registry/categories 数据层。
 
