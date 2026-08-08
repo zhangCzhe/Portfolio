@@ -5,12 +5,14 @@ precision highp float;
 #endif
 uniform float u_time;
 uniform vec2 u_resolution;
+uniform float u_refraction;
+uniform float u_drop_size;
 
 void main() {
   vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution) / min(u_resolution.x, u_resolution.y);
 
   vec2 center = vec2(0.0, 0.15);
-  float r = 0.3;
+  float r = u_drop_size;
   float d = length(uv - center);
 
   if (d > r) {
@@ -30,10 +32,10 @@ void main() {
   float hl3 = pow(max(dot(normal, lightBottom), 0.0), 8.0) * 0.2;
 
   // Caustic-like rim
-  float rim = pow(1.0 - z / r, 3.0) * 0.6;
+  float rim = pow(1.0 - z / r, 3.0) * (0.45 * u_refraction);
 
   // Background "refraction" simulation
-  float refraction = sin((uv.x - center.x) * 20.0 + u_time) * 0.1;
+  float refraction = sin((uv.x - center.x) * (10.0 + u_refraction * 8.0) + u_time) * u_refraction * 0.12;
 
   vec3 color = vec3(0.1, 0.2, 0.4);
   color += hl1 * 1.2;

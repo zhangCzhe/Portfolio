@@ -5,14 +5,15 @@ precision highp float;
 #endif
 uniform float u_time;
 uniform vec2 u_resolution;
-uniform float u_cx;
-uniform float u_cy;
+uniform float u_c_real;
+uniform float u_c_imag;
+uniform float u_zoom;
 
 void main() {
   vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution) / min(u_resolution.x, u_resolution.y);
 
-  vec2 c = vec2(u_cx, u_cy);
-  vec2 z = uv * 2.0;
+  vec2 c = vec2(u_c_real, u_c_imag);
+  vec2 z = uv * (3.0 / u_zoom);
 
   float iter = 0.0;
   const int maxIter = 80;

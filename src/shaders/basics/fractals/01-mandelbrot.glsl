@@ -6,6 +6,21 @@ precision highp float;
 uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_zoom;
+uniform float u_iterations;
+uniform float u_color_theme;
+
+vec3 fractalPalette(float t, float theme) {
+  if (theme < 1.0) {
+    // classic: blue-violet spectrum
+    return 0.5 + 0.5 * cos(6.28318 * (t * 2.0 + vec3(0.0, 0.33, 0.67)));
+  } else if (theme < 2.0) {
+    // deep: teal-emerald depths
+    return 0.4 + 0.6 * cos(6.28318 * (t * 3.0 + vec3(0.4, 0.6, 0.8)));
+  } else {
+    // neon: hot pink-cyan
+    return 0.5 + 0.5 * cos(6.28318 * (t * 1.5 + vec3(0.8, 0.2, 0.6)));
+  }
+}
 
 void main() {
   vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution) / min(u_resolution.x, u_resolution.y);
@@ -16,20 +31,21 @@ void main() {
 
   vec2 z = vec2(0.0);
   float iter = 0.0;
-  const int maxIter = 80;
+  const int maxIter = 150;
 
   for (int i = 0; i < maxIter; i++) {
+    if (float(i) >= u_iterations) break;
     z = vec2(z.x * z.x - z.y * z.y, 2.0 * z.x * z.y) + c;
     if (dot(z, z) > 4.0) break;
     iter += 1.0;
   }
 
-  float m = iter / float(maxIter);
+  float m = iter / u_iterations;
   vec3 inside = vec3(0.05, 0.05, 0.15);
-  vec3 outside = 0.5 + 0.5 * cos(6.28318 * (m * 2.0 + vec3(0.0, 0.33, 0.67)));
+  vec3 outside = fractalPalette(m, u_color_theme);
 
   float smoothed = m + 1.0 - log2(log2(dot(z, z)) * 0.5);
-  smoothed = clamp(smoothed / float(maxIter), 0.0, 1.0);
+  smoothed = clamp(smoothed / u_iterations, 0.0, 1.0);
 
   vec3 color = mix(inside, outside, smoothed);
 

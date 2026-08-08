@@ -6,7 +6,7 @@ precision highp float;
 uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_petals;
-uniform float u_twist;
+uniform float u_radius;
 
 void main() {
   vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution) / min(u_resolution.x, u_resolution.y);
@@ -15,8 +15,8 @@ void main() {
   float radius = length(uv);
 
   // Polar distortion
-  float petal = cos(angle * u_petals + u_twist * radius) * 0.5 + 0.5;
-  float shape = smoothstep(radius, radius + 0.05, petal * 0.7);
+  float petal = cos(angle * u_petals) * 0.5 + 0.5;
+  float shape = smoothstep(radius, radius + 0.05, petal * 0.7 * u_radius);
 
   // Color based on angle and radius
   vec3 baseColor = 0.5 + 0.5 * cos(angle * 3.0 + vec3(0.0, 2.0, 4.0));

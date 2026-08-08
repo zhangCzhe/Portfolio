@@ -6,6 +6,8 @@ precision highp float;
 uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_warp;
+uniform vec3 u_color1;
+uniform vec3 u_color2;
 
 float hash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -49,11 +51,8 @@ void main() {
 
   float result = fbm(uv + u_warp * r);
 
-  vec3 colA = vec3(0.05, 0.08, 0.25);
-  vec3 colB = vec3(0.1, 0.4, 0.7);
-  vec3 colC = vec3(0.8, 0.5, 0.9);
-  vec3 color = mix(colA, colB, result);
-  color = mix(color, colC, smoothstep(0.55, 0.8, result));
+  vec3 color = mix(u_color1, u_color2, result);
+  color = mix(color, vec3(1.0), smoothstep(0.55, 0.8, result) * 0.3);
 
   gl_FragColor = vec4(color, 1.0);
 }

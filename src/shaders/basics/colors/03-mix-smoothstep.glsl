@@ -6,6 +6,8 @@ precision highp float;
 uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_transition;
+uniform vec3 u_color_a;
+uniform vec3 u_color_b;
 
 void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution;
@@ -15,8 +17,8 @@ void main() {
   float smooth_edge = smoothstep(u_transition - 0.1, u_transition + 0.1, t);
   float sharp_edge = step(u_transition, t);
 
-  vec3 left = vec3(0.1, 0.2, 0.8);
-  vec3 right = vec3(0.9, 0.3, 0.2);
+  vec3 left = u_color_a;
+  vec3 right = u_color_b;
 
   vec3 color = mix(left, right, smooth_edge);
 

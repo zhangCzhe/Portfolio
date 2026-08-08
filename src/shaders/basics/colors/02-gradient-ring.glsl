@@ -6,9 +6,10 @@ precision highp float;
 uniform float u_time;
 uniform vec2 u_resolution;
 uniform float u_speed;
+uniform float u_hue_shift;
 
 vec3 palette(float t) {
-  return 0.5 + 0.5 * cos(6.28318 * (t + vec3(0.0, 0.33, 0.67)));
+  return 0.5 + 0.5 * cos(6.28318 * (t + vec3(0.0, 0.33, 0.67)) + u_hue_shift * 6.28318);
 }
 
 void main() {
