@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ShaderCanvas } from './ShaderCanvas';
+import { CanvasErrorBoundary } from '../ui/CanvasErrorBoundary';
 import { WebcamCapture } from '../ui/WebcamCapture';
 import { ShaderCodeEditor } from './ShaderCodeEditor';
 import { ShaderControls } from './ShaderControls';
@@ -26,6 +27,7 @@ export function DemoCard({ demo, variant }: DemoCardProps) {
   const [activePreset, setActivePreset] = useState<string | null>(null);
   const [editedSource, setEditedSource] = useState<string | null>(null);
   const [compileError, setCompileError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   const activeSource = editedSource ?? originalSource ?? '';
 
@@ -48,6 +50,13 @@ export function DemoCard({ demo, variant }: DemoCardProps) {
     setCompileError(null);
   }, []);
 
+  // 重试时通过 key 整体重建 WebcamCapture，使 useShaderCanvas 的
+  // IntersectionObserver 绑定到新的容器元素（否则 observer 一直观察旧节点，
+  // visible 恒为 false，重试后永远停在 loading）
+  const handleWebcamRetry = useCallback(() => {
+    setRetryKey((k) => k + 1);
+  }, []);
+
   const title = lang === 'zh' ? demo.titleZh : demo.title;
   const description = lang === 'zh' ? demo.descriptionZh : demo.description;
 
@@ -56,22 +65,31 @@ export function DemoCard({ demo, variant }: DemoCardProps) {
       {originalSource ? (
         variant === 'filter' ? (
           <WebcamCapture
+            key={retryKey}
             fragmentShader={activeSource}
             uniforms={values}
             className="w-full"
+            onRetry={handleWebcamRetry}
           />
         ) : (
-          <ShaderCanvas
-            fragmentShader={activeSource}
-            uniforms={values}
-            interactive={demo.interactive}
-            className="w-full"
-            onCompileError={setCompileError}
-          />
+          <CanvasErrorBoundary>
+            <ShaderCanvas
+              fragmentShader={activeSource}
+              uniforms={values}
+              interactive={demo.interactive}
+              className="w-full"
+              onCompileError={setCompileError}
+            />
+          </CanvasErrorBoundary>
         )
       ) : (
-        <div className="skeleton rounded-t-lg w-full flex items-center justify-center" style={{ aspectRatio: '4 / 3' }}>
-          <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>{t('common.loading')}</span>
+        <div
+          className="skeleton rounded-t-lg w-full flex items-center justify-center"
+          style={{ aspectRatio: '4 / 3' }}
+        >
+          <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
+            {t('common.loading')}
+          </span>
         </div>
       )}
       <div className="p-4 sm:p-5">

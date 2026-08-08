@@ -2,17 +2,22 @@ import { useState, useEffect } from 'react';
 import { loadSource, getSource } from '../shader/registry';
 
 export function useShaderSource(sourcePath: string): string | null {
-  const cached = getSource(sourcePath);
-  const [source, setSource] = useState<string | null>(cached ?? null);
+  const [source, setSource] = useState<string | null>(() => getSource(sourcePath) ?? null);
 
   useEffect(() => {
-    if (cached) return;
+    const cached = getSource(sourcePath);
+    if (cached !== undefined) {
+      setSource(cached);
+      return;
+    }
     let cancelled = false;
-    loadSource(sourcePath).then((s) => {
+    void loadSource(sourcePath).then((s) => {
       if (!cancelled) setSource(s);
     });
-    return () => { cancelled = true; };
-  }, [sourcePath]); // eslint-disable-line react-hooks/exhaustive-deps
+    return () => {
+      cancelled = true;
+    };
+  }, [sourcePath]);
 
   return source;
 }

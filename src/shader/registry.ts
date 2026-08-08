@@ -1,12 +1,16 @@
 import type { ShaderCategory } from './types';
 
 // Lazy-load all shader sources — Vite code-splits each .glsl into its own chunk
-const shaderModules = import.meta.glob<string>('../shaders/**/*.glsl', { query: '?raw', import: 'default' });
+const shaderModules = import.meta.glob<string>('../shaders/**/*.glsl', {
+  query: '?raw',
+  import: 'default',
+});
 
 const sourceCache = new Map<string, string>();
 
 export async function loadSource(path: string): Promise<string> {
-  if (sourceCache.has(path)) return sourceCache.get(path)!;
+  const cached = sourceCache.get(path);
+  if (cached !== undefined) return cached;
 
   const key = `../shaders/${path}`;
   const loader = shaderModules[key];

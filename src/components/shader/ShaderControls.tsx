@@ -40,9 +40,10 @@ export function ShaderControls({
                 key={preset.name}
                 onClick={() => onPresetSelect(preset)}
                 className={`px-2.5 py-0.5 text-[11px] rounded-full border transition-colors cursor-pointer
-                  ${activePreset === preset.name
-                    ? 'border-accent text-accent bg-accent/10'
-                    : 'border-border-subtle text-text-secondary hover:border-border-hover'
+                  ${
+                    activePreset === preset.name
+                      ? 'border-accent text-accent bg-accent/10'
+                      : 'border-border-subtle text-text-secondary hover:border-border-hover'
                   }`}
               >
                 {presetName(preset)}

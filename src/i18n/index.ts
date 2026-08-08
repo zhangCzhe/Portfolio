@@ -34,6 +34,13 @@ i18n
             copied: '已复制',
             errorAtLine: '第 {{line}} 行',
           },
+          canvas: {
+            unavailable: '此作品暂时无法展出',
+          },
+          webgl: {
+            unsupported:
+              '您的浏览器不支持 WebGL，无法展示这些作品。请使用最新版 Chrome / Edge / Safari 访问。',
+          },
           webcam: {
             denied: '摄像头权限被拒绝',
             unavailable: '摄像头不可用',
@@ -73,6 +80,13 @@ i18n
             copy: 'Copy',
             copied: 'Copied',
             errorAtLine: 'Line {{line}}',
+          },
+          canvas: {
+            unavailable: 'This artwork is temporarily unavailable',
+          },
+          webgl: {
+            unsupported:
+              'Your browser does not support WebGL. Please visit with the latest Chrome, Edge or Safari.',
           },
           webcam: {
             denied: 'Camera permission denied',

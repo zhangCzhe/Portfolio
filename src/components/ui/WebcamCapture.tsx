@@ -1,89 +1,65 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { WebGLRenderer } from '../../shader/WebGLRenderer';
-import { useCanvasSlot } from '../../shader/CanvasPool';
+import { useShaderCanvas } from '../../hooks/useShaderCanvas';
+import type { UniformSchema } from '../../engine/types';
 
 interface WebcamCaptureProps {
   fragmentShader: string;
-  uniforms?: Record<string, number>;
+  uniforms?: UniformSchema;
   className?: string;
+  /** 由父级负责重试：父级通过改变 key 整体重建本组件，
+   *  使 useShaderCanvas 的 IntersectionObserver 重新绑定到新容器 */
+  onRetry: () => void;
 }
 
-const ERROR_KEYS = ['denied', 'unavailable', 'start', 'nogl', 'lost', 'insecure', 'shader'] as const;
+const ERROR_KEYS = [
+  'denied',
+  'unavailable',
+  'start',
+  'nogl',
+  'lost',
+  'insecure',
+  'shader',
+] as const;
 type ErrorKey = (typeof ERROR_KEYS)[number];
 
 export function WebcamCapture({
   fragmentShader,
-  uniforms = {},
+  uniforms,
   className = '',
+  onRetry,
 }: WebcamCaptureProps) {
   const { t } = useTranslation();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const rendererRef = useRef<WebGLRenderer | null>(null);
-  const streamRef = useRef<MediaStream | null>(null);
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const fragRef = useRef(fragmentShader);
-  fragRef.current = fragmentShader;
-  const uniformsRef = useRef(uniforms);
-  uniformsRef.current = uniforms;
-
-  const [visible, setVisible] = useState(false);
   const [error, setError] = useState<ErrorKey | null>(null);
   const [loading, setLoading] = useState(true);
-  const [forceKey, setForceKey] = useState(0);
-  const slotGranted = useCanvasSlot(visible);
-  const active = visible && slotGranted;
+  const streamRef = useRef<MediaStream | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const shaderRef = useRef(fragmentShader);
+  shaderRef.current = fragmentShader;
 
-  const handleRetry = () => {
-    setError(null);
-    setLoading(true);
-    setForceKey((k) => k + 1);
-  };
+  const { containerRef, rendererRef, active, glError } = useShaderCanvas({
+    fragmentShader,
+    uniforms,
+    canvasClassName: className,
+    onCompileError: (msg) => {
+      if (msg) {
+        setError('shader');
+        setLoading(false);
+      }
+    },
+  });
 
-  // Delayed visibility observer
+  // glError（WebGL 不可用 / context lost）映射到错误态
   useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    const raf = requestAnimationFrame(() => {
-      observerRef.current = new IntersectionObserver(
-        ([e]) => setVisible(e.isIntersecting),
-        { threshold: 0 },
-      );
-      observerRef.current.observe(el);
-    });
-
-    return () => {
-      cancelAnimationFrame(raf);
-      observerRef.current?.disconnect();
-    };
-  }, []);
-
-  // Renderer + camera lifecycle
-  useEffect(() => {
-    if (!active) {
-      rendererRef.current?.dispose();
-      rendererRef.current = null;
-      if (canvasRef.current) {
-        canvasRef.current.remove();
-        canvasRef.current = null;
-      }
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((t) => t.stop());
-        streamRef.current = null;
-      }
-      if (videoRef.current) {
-        videoRef.current.pause();
-        videoRef.current.srcObject = null;
-        videoRef.current = null;
-      }
-      return;
+    if (glError === 'WebGL not supported') {
+      setError('nogl');
+      setLoading(false);
     }
+  }, [glError]);
 
-    const container = containerRef.current;
-    if (!container) return;
+  // 摄像头生命周期：active 时开启，失活/卸载时停止
+  useEffect(() => {
+    if (!active) return;
 
     if (!navigator.mediaDevices) {
       setError('insecure');
@@ -92,29 +68,7 @@ export function WebcamCapture({
     }
 
     let cancelled = false;
-
-    // Create canvas — CSS-sized, pixel size handled by renderer
-    const canvas = document.createElement('canvas');
-    canvas.className = `shader-canvas ${className}`;
-    container.appendChild(canvas);
-    canvasRef.current = canvas;
-
-    const renderer = new WebGLRenderer({
-      canvas,
-      fragmentSource: fragRef.current,
-      useTexture: true,
-      onError: (msg) => {
-        if (msg) {
-          setError(msg.includes('compile') || msg.includes('link') ? 'shader' : 'lost');
-          setLoading(false);
-        }
-      },
-    });
-    renderer.customValues = { ...uniformsRef.current };
-    rendererRef.current = renderer;
-    renderer.start();
-
-    // Setup camera
+    const renderer = rendererRef.current;
     const video = document.createElement('video');
     video.autoplay = true;
     video.playsInline = true;
@@ -122,67 +76,92 @@ export function WebcamCapture({
     video.setAttribute('playsinline', '');
     video.addEventListener('loadeddata', () => setLoading(false), { once: true });
     videoRef.current = video;
-    renderer.videoElement = video;
+    if (renderer) {
+      // 重试时重新编译，避免 shader 错误后 retry 得到无 program 的空画布
+      try {
+        renderer.setFragmentShader(shaderRef.current);
+      } catch {
+        if (!cancelled) {
+          setError('shader');
+          setLoading(false);
+          return;
+        }
+      }
+      renderer.setVideoTexture(video);
+      renderer.onContextChange('lost', () => {
+        setError('lost');
+        setLoading(false);
+      });
+    }
 
-    navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })
+    navigator.mediaDevices
+      .getUserMedia({ video: { width: 640, height: 480 } })
       .then((stream) => {
         if (cancelled) {
-          stream.getTracks().forEach((t) => t.stop());
+          stream.getTracks().forEach((track) => track.stop());
           return;
         }
         streamRef.current = stream;
         video.srcObject = stream;
         video.play().catch(() => {
-          if (!cancelled) { setError('start'); setLoading(false); }
+          if (!cancelled) {
+            setError('start');
+            setLoading(false);
+          }
         });
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         if (!cancelled) {
-          setError(err.name === 'NotAllowedError' ? 'denied' : 'unavailable');
+          const name = err instanceof DOMException ? err.name : '';
+          setError(name === 'NotAllowedError' ? 'denied' : 'unavailable');
           setLoading(false);
         }
       });
 
     return () => {
       cancelled = true;
-      renderer.dispose();
-      rendererRef.current = null;
-      if (canvasRef.current) {
-        canvasRef.current.remove();
-        canvasRef.current = null;
-      }
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach((t) => t.stop());
-        streamRef.current = null;
-      }
-      if (videoRef.current) {
-        videoRef.current.pause();
-        videoRef.current.srcObject = null;
-      }
+      renderer?.setVideoTexture(null);
+      streamRef.current?.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+      video.pause();
+      video.srcObject = null;
+      videoRef.current = null;
     };
-  }, [active, forceKey, className]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Sync uniforms
-  useEffect(() => {
-    if (!rendererRef.current) return;
-    rendererRef.current.customValues = { ...uniforms };
-  }, [uniforms]);
-
-  // Live-edit recompile
-  useEffect(() => {
-    if (!rendererRef.current) return;
-    rendererRef.current.setSource(fragmentShader);
-  }, [fragmentShader]);
+  }, [active, rendererRef]);
 
   if (error) {
     return (
-      <div className="webgl-fallback rounded-lg w-full" style={{ aspectRatio: '4 / 3', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24, fontSize: 14 }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity={0.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.55-2.27A1 1 0 0121 8.62v6.76a1 1 0 01-1.45.89L15 14m-2 0H5a2 2 0 01-2-2V8a2 2 0 012-2h8a2 2 0 012 2v4z" />
+      <div
+        className="webgl-fallback rounded-lg w-full"
+        style={{
+          aspectRatio: '4 / 3',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 12,
+          padding: 24,
+          fontSize: 14,
+        }}
+      >
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          opacity={0.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15 10l4.55-2.27A1 1 0 0121 8.62v6.76a1 1 0 01-1.45.89L15 14m-2 0H5a2 2 0 01-2-2V8a2 2 0 012-2h8a2 2 0 012 2v4z"
+          />
         </svg>
         <span>{t(`webcam.${error}`)}</span>
         {error !== 'lost' && (
-          <button onClick={handleRetry} className="btn" style={{ fontSize: 12, padding: '6px 16px' }}>
+          <button onClick={onRetry} className="btn" style={{ fontSize: 12, padding: '6px 16px' }}>
             {t('webcam.retry')}
           </button>
         )}
@@ -191,9 +170,23 @@ export function WebcamCapture({
   }
 
   return (
-    <div ref={containerRef} className="relative w-full overflow-hidden rounded-lg" style={{ aspectRatio: '4 / 3' }}>
+    <div
+      ref={containerRef}
+      className="relative w-full overflow-hidden rounded-lg"
+      style={{ aspectRatio: '4 / 3' }}
+    >
       {(!active || loading) && (
-        <div className="skeleton" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 16 }}>
+        <div
+          className="skeleton"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 16,
+          }}
+        >
           <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
             {loading ? t('webcam.starting') : ''}
           </span>

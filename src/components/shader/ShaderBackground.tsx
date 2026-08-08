@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { WebGLRenderer } from '../../shader/WebGLRenderer';
+import { GLRenderer } from '../../engine/GLRenderer';
+import { FrameLoop } from '../../engine/FrameLoop';
+import { detectInitialTier, readDeviceEnvironment } from '../../engine/quality';
 
 interface ShaderBackgroundProps {
   fragmentShader: string;
@@ -8,50 +10,53 @@ interface ShaderBackgroundProps {
 
 export function ShaderBackground({ fragmentShader, className }: ShaderBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const rendererRef = useRef<WebGLRenderer | null>(null);
-  const observerRef = useRef<IntersectionObserver | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const renderer = new WebGLRenderer({
-      canvas,
-      fragmentSource: fragmentShader,
-      onError: (msg) => setError(msg),
+    const renderer = new GLRenderer(canvas, {
+      initialTier: detectInitialTier(readDeviceEnvironment()),
     });
-    rendererRef.current = renderer;
+    if (!renderer.init()) {
+      setError('WebGL not supported');
+      return;
+    }
+    try {
+      renderer.setFragmentShader(fragmentShader);
+    } catch (e) {
+      renderer.dispose();
+      setError(e instanceof Error ? e.message : String(e));
+      return;
+    }
 
-    // Fullscreen sizing
     const resize = () => {
-      canvas.style.width = window.innerWidth + 'px';
-      canvas.style.height = window.innerHeight + 'px';
-      rendererRef.current?.resize();
+      canvas.style.width = `${window.innerWidth}px`;
+      canvas.style.height = `${window.innerHeight}px`;
+      renderer.resize();
     };
     window.addEventListener('resize', resize);
+    resize();
 
-    // Pause when off-screen
-    observerRef.current = new IntersectionObserver(
-      ([e]) => {
-        if (e.isIntersecting) {
-          rendererRef.current?.start();
-        } else {
-          rendererRef.current?.stop();
-        }
+    const loop = new FrameLoop((timeMs) => renderer.render(timeMs));
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const entry = entries[0];
+        if (!entry) return;
+        if (entry.isIntersecting) loop.start();
+        else loop.stop();
       },
       { threshold: 0 },
     );
-    observerRef.current.observe(canvas);
-
-    resize();
-    renderer.start();
+    observer.observe(canvas);
+    loop.start();
 
     return () => {
       window.removeEventListener('resize', resize);
-      observerRef.current?.disconnect();
+      observer.disconnect();
+      loop.dispose();
       renderer.dispose();
-      rendererRef.current = null;
     };
   }, [fragmentShader]);
 

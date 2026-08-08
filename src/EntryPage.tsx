@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ShaderBackground } from './components/shader/ShaderBackground';
+import { isWebGLSupported } from './engine/support';
 import nebulaShader from './shaders/background/nebula.glsl?raw';
 
 interface EntryPageProps {
@@ -14,17 +15,18 @@ export default function EntryPage({ onEnter }: EntryPageProps) {
   const shouldReduceMotion = useReducedMotion();
 
   useEffect(() => {
-    const c = document.createElement('canvas');
-    const gl = c.getContext('webgl2') || c.getContext('webgl');
-    if (!gl) setWebglOk(false);
+    if (!isWebGLSupported()) setWebglOk(false);
   }, []);
 
   // Scroll/touch/keyboard to enter
   useEffect(() => {
-    const onWheel = (e: WheelEvent) => { if (e.deltaY > 30) onEnter(); };
+    const onWheel = (e: WheelEvent) => {
+      if (e.deltaY > 30) onEnter();
+    };
     const onTouch = () => onEnter();
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === 'Enter' || e.key === ' ') onEnter();
+      if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === 'Enter' || e.key === ' ')
+        onEnter();
     };
     window.addEventListener('wheel', onWheel, { passive: true });
     window.addEventListener('touchstart', onTouch, { passive: true });
@@ -37,7 +39,9 @@ export default function EntryPage({ onEnter }: EntryPageProps) {
   }, [onEnter]);
 
   const ease: [number, number, number, number] = [0.22, 1, 0.36, 1];
-  const animProps = shouldReduceMotion ? {} : { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 } };
+  const animProps = shouldReduceMotion
+    ? {}
+    : { initial: { opacity: 0, y: 24 }, animate: { opacity: 1, y: 0 } };
   const tr = shouldReduceMotion ? { duration: 0 } : { duration: 0.6, ease };
 
   return (
@@ -45,17 +49,26 @@ export default function EntryPage({ onEnter }: EntryPageProps) {
       {webglOk ? (
         <ShaderBackground fragmentShader={nebulaShader} />
       ) : (
-        <div style={{
-          position: 'fixed', inset: 0, zIndex: 0,
-          background: '#000',
-        }} />
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 0,
+            background: '#000',
+          }}
+        />
       )}
 
       {/* Subtle top gradient for depth */}
-      <div style={{
-        position: 'absolute', inset: 0, zIndex: 1,
-        background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 40%, rgba(0,0,0,0.5) 100%)',
-      }} />
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: 1,
+          background:
+            'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 40%, rgba(0,0,0,0.5) 100%)',
+        }}
+      />
 
       {/* Content — bottom-left aligned, Apple style */}
       <div className="entry-content">
