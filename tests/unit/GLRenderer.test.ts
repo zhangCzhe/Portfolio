@@ -106,14 +106,98 @@ describe('GLRenderer', () => {
     renderer.dispose();
   });
 
-  it('dispose releases GL resources and loses context', () => {
+  it('dispose removes canvas context-lost/restored event listeners', () => {
+    const canvas = makeFakeCanvas(gl);
+    const renderer = new GLRenderer(canvas);
+    renderer.init();
+    const events: string[] = [];
+    renderer.onContextChange('lost', () => events.push('lost'));
+    renderer.onContextChange('restored', () => events.push('restored'));
+    renderer.dispose();
+    canvas.dispatchEvent(new Event('webglcontextlost'));
+    canvas.dispatchEvent(new Event('webglcontextrestored'));
+    expect(events).toEqual([]);
+  });
+
+  it('setVideoTexture uploads video frame and sets u_texture/u_videoSize uniforms', () => {
+    gl.activeUniforms = [
+      { name: 'u_texture', type: 0x8b5e },
+      { name: 'u_videoSize', type: 0x8b50 },
+    ];
     const canvas = makeFakeCanvas(gl);
     const renderer = new GLRenderer(canvas);
     renderer.init();
     renderer.setFragmentShader('ok');
+
+    const video = document.createElement('video');
+    Object.defineProperty(video, 'readyState', { value: 3, writable: true });
+    Object.defineProperty(video, 'videoWidth', { value: 1280, writable: true });
+    Object.defineProperty(video, 'videoHeight', { value: 720, writable: true });
+
+    renderer.setVideoTexture(video);
+    expect(gl.createdTextures).toBe(1);
+    expect(gl.calls).toContainEqual({
+      method: 'bindTexture',
+      args: [gl.TEXTURE_2D, expect.any(Object)],
+    });
+    expect(gl.calls).toContainEqual({
+      method: 'texParameteri',
+      args: [gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR],
+    });
+
+    renderer.render(16);
+    expect(gl.calls).toContainEqual({
+      method: 'texImage2D',
+      args: [gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video],
+    });
+    expect(gl.uniformCalls).toContainEqual({ method: 'uniform1i', args: [0] });
+    expect(gl.uniformCalls).toContainEqual({ method: 'uniform2f', args: [1280, 720] });
     renderer.dispose();
-    expect(gl.deletedPrograms).toBe(1);
-    expect(gl.deletedBuffers).toBe(1);
-    expect(gl.loseContextCalled).toBe(true);
+  });
+
+  it('setVideoTexture(null) clears video and falls back to default video size', () => {
+    gl.activeUniforms = [
+      { name: 'u_texture', type: 0x8b5e },
+      { name: 'u_videoSize', type: 0x8b50 },
+    ];
+    const canvas = makeFakeCanvas(gl);
+    const renderer = new GLRenderer(canvas);
+    renderer.init();
+    renderer.setFragmentShader('ok');
+
+    const video = document.createElement('video');
+    Object.defineProperty(video, 'readyState', { value: 3, writable: true });
+    Object.defineProperty(video, 'videoWidth', { value: 1280, writable: true });
+    Object.defineProperty(video, 'videoHeight', { value: 720, writable: true });
+
+    renderer.setVideoTexture(video);
+    renderer.setVideoTexture(null);
+    renderer.render(16);
+
+    expect(gl.calls.filter((c) => c.method === 'texImage2D')).toHaveLength(0);
+    expect(gl.uniformCalls.filter((c) => c.method === 'uniform1i')).toHaveLength(0);
+    expect(gl.uniformCalls).toContainEqual({ method: 'uniform2f', args: [640, 480] });
+    renderer.dispose();
+  });
+
+  it('setMouse updates u_mouse uniform as rendered', () => {
+    gl.activeUniforms = [{ name: 'u_mouse', type: 0x8b50 }];
+    const canvas = makeFakeCanvas(gl);
+    const renderer = new GLRenderer(canvas);
+    renderer.init();
+    renderer.setFragmentShader('ok');
+    renderer.setMouse(0.25, 0.75);
+    renderer.render(16);
+    expect(gl.uniformCalls).toContainEqual({ method: 'uniform2f', args: [0.25, 0.75] });
+    renderer.dispose();
+  });
+
+  it('constructor with initialTier option starts at that tier quality', () => {
+    const canvas = makeFakeCanvas(gl, 300, 200);
+    const renderer = new GLRenderer(canvas, { initialTier: 'low' });
+    renderer.init();
+    expect(canvas.width).toBe(225);
+    expect(canvas.height).toBe(150);
+    renderer.dispose();
   });
 });

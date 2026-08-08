@@ -34,7 +34,9 @@ export class FakeGL {
   deletedPrograms = 0;
   deletedBuffers = 0;
   deletedTextures = 0;
+  createdTextures = 0;
   readonly uniformCalls: { method: string; args: unknown[] }[] = [];
+  readonly calls: { method: string; args: unknown[] }[] = [];
   private failCompileFlag = false;
 
   createShader(): object {
@@ -83,16 +85,53 @@ export class FakeGL {
   enableVertexAttribArray(): void {}
   vertexAttribPointer(): void {}
   createTexture(): object {
+    this.createdTextures++;
+    this.calls.push({ method: 'createTexture', args: [] });
     return {};
   }
-  bindTexture(): void {}
-  texParameteri(): void {}
-  texImage2D(): void {}
+  bindTexture(target: number, texture: unknown): void {
+    this.calls.push({ method: 'bindTexture', args: [target, texture] });
+  }
+  texParameteri(target: number, pname: number, param: number): void {
+    this.calls.push({ method: 'texParameteri', args: [target, pname, param] });
+  }
+  texImage2D(
+    target: number,
+    level: number,
+    internalformat: number,
+    widthOrFormat: number,
+    heightOrType: number,
+    borderOrSrc: unknown,
+    format?: number,
+    type?: number,
+    src?: unknown,
+  ): void {
+    const args =
+      format === undefined
+        ? [target, level, internalformat, widthOrFormat, heightOrType, borderOrSrc]
+        : [
+            target,
+            level,
+            internalformat,
+            widthOrFormat,
+            heightOrType,
+            borderOrSrc,
+            format,
+            type,
+            src,
+          ];
+    this.calls.push({ method: 'texImage2D', args });
+  }
   deleteTexture(): void {
     this.deletedTextures++;
+    this.calls.push({ method: 'deleteTexture', args: [] });
   }
-  activeTexture(): void {}
-  pixelStorei(): void {}
+  activeTexture(unit: number): void {
+    this.calls.push({ method: 'activeTexture', args: [unit] });
+  }
+  pixelStorei(pname: number, param: number): void {
+    this.calls.push({ method: 'pixelStorei', args: [pname, param] });
+  }
   getActiveUniform(_p: unknown, index: number): FakeActiveUniform | null {
     return this.activeUniforms[index] ?? null;
   }
