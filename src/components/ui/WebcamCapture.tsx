@@ -1,32 +1,23 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { WebGLRenderer } from '../../shader/WebGLRenderer';
 import { useCanvasSlot } from '../../shader/CanvasPool';
 
 interface WebcamCaptureProps {
   fragmentShader: string;
   uniforms?: Record<string, number>;
-  width?: number;
-  height?: number;
   className?: string;
 }
 
-const ERROR_MSGS: Record<string, string> = {
-  denied: 'Camera permission denied',
-  unavailable: 'Camera not available',
-  start: 'Camera failed to start',
-  nogl: 'WebGL not supported',
-  lost: 'WebGL context lost',
-  insecure: 'Camera requires HTTPS',
-  shader: 'Shader compilation failed',
-};
+const ERROR_KEYS = ['denied', 'unavailable', 'start', 'nogl', 'lost', 'insecure', 'shader'] as const;
+type ErrorKey = (typeof ERROR_KEYS)[number];
 
 export function WebcamCapture({
   fragmentShader,
   uniforms = {},
-  width = 420,
-  height = 315,
   className = '',
 }: WebcamCaptureProps) {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const rendererRef = useRef<WebGLRenderer | null>(null);
@@ -39,7 +30,7 @@ export function WebcamCapture({
   uniformsRef.current = uniforms;
 
   const [visible, setVisible] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ErrorKey | null>(null);
   const [loading, setLoading] = useState(true);
   const [forceKey, setForceKey] = useState(0);
   const slotGranted = useCanvasSlot(visible);
@@ -102,12 +93,9 @@ export function WebcamCapture({
 
     let cancelled = false;
 
-    // Create canvas
+    // Create canvas — CSS-sized, pixel size handled by renderer
     const canvas = document.createElement('canvas');
-    canvas.className = `shader-canvas rounded-lg ${className}`;
-    canvas.style.cssText = `width:${width}px;height:${height}px`;
-    canvas.width = width;
-    canvas.height = height;
+    canvas.className = `shader-canvas ${className}`;
     container.appendChild(canvas);
     canvasRef.current = canvas;
 
@@ -172,7 +160,7 @@ export function WebcamCapture({
         videoRef.current.srcObject = null;
       }
     };
-  }, [active, forceKey, width, height, className]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [active, forceKey, className]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Sync uniforms
   useEffect(() => {
@@ -188,14 +176,14 @@ export function WebcamCapture({
 
   if (error) {
     return (
-      <div className="webgl-fallback rounded-lg" style={{ width, height, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24, fontSize: 14 }}>
+      <div className="webgl-fallback rounded-lg w-full" style={{ aspectRatio: '4 / 3', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24, fontSize: 14 }}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity={0.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.55-2.27A1 1 0 0121 8.62v6.76a1 1 0 01-1.45.89L15 14m-2 0H5a2 2 0 01-2-2V8a2 2 0 012-2h8a2 2 0 012 2v4z" />
         </svg>
-        <span>{ERROR_MSGS[error] || error}</span>
+        <span>{t(`webcam.${error}`)}</span>
         {error !== 'lost' && (
           <button onClick={handleRetry} className="btn" style={{ fontSize: 12, padding: '6px 16px' }}>
-            Retry
+            {t('webcam.retry')}
           </button>
         )}
       </div>
@@ -203,11 +191,11 @@ export function WebcamCapture({
   }
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', width, height }}>
+    <div ref={containerRef} className="relative w-full overflow-hidden rounded-lg" style={{ aspectRatio: '4 / 3' }}>
       {(!active || loading) && (
-        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-bg-secondary)', borderRadius: 16 }}>
+        <div className="skeleton" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 16 }}>
           <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
-            {loading ? 'Starting camera...' : ''}
+            {loading ? t('webcam.starting') : ''}
           </span>
         </div>
       )}

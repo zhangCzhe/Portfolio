@@ -102,8 +102,10 @@ export class WebGLRenderer {
 
     const dpr = Math.min(window.devicePixelRatio, 2);
     const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
+    // Guard: canvas may be detached or not laid out yet
+    if (rect.width === 0 || rect.height === 0) return;
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
     gl.viewport(0, 0, canvas.width, canvas.height);
   }
 
@@ -218,6 +220,13 @@ export class WebGLRenderer {
             gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, this.videoElement);
             gl.uniform1i(u.location, 0);
+          }
+          break;
+        case 'u_videoSize':
+          if (this.videoElement && this.videoElement.videoWidth > 0) {
+            gl.uniform2f(u.location, this.videoElement.videoWidth, this.videoElement.videoHeight);
+          } else {
+            gl.uniform2f(u.location, 640, 480);
           }
           break;
         default:

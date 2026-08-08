@@ -5,13 +5,22 @@ precision highp float;
 #endif
 uniform sampler2D u_texture;
 uniform vec2 u_resolution;
+uniform vec2 u_videoSize;
 uniform float u_intensity;
 uniform float u_time;
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 
+// Crop-fit (cover) the video frame into the canvas without stretching
+vec2 coverUV(vec2 uv) {
+  float ca = u_resolution.x / u_resolution.y;
+  float va = u_videoSize.x / u_videoSize.y;
+  vec2 s = ca > va ? vec2(1.0, va / ca) : vec2(ca / va, 1.0);
+  return (uv - 0.5) * s + 0.5;
+}
+
 void main() {
-  vec2 uv = gl_FragCoord.xy / u_resolution;
+  vec2 uv = coverUV(gl_FragCoord.xy / u_resolution);
 
   // Random horizontal shift
   float shift = hash(vec2(floor(uv.y * 30.0), floor(u_time * 5.0))) * u_intensity * 0.1;

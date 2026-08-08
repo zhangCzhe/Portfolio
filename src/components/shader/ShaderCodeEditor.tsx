@@ -128,25 +128,32 @@ export function ShaderCodeEditor({ code, onChange, onReset, error }: ShaderCodeE
             onClick={handleReset}
             style={{ fontSize: 12, color: 'var(--color-text-tertiary)', background: 'none', border: '1px solid var(--color-border)', borderRadius: 9999, cursor: 'pointer', padding: '2px 10px' }}
           >
-            Reset
+            {t('editor.reset')}
           </button>
         )}
       </div>
 
-      {/* Compile error banner */}
-      {error && open && (
-        <div style={{
-          marginTop: 8, padding: '10px 14px',
-          fontSize: 12, fontFamily: 'var(--font-mono)',
-          lineHeight: 1.5, whiteSpace: 'pre-wrap',
-          background: 'rgba(239, 68, 68, 0.1)',
-          border: '1px solid rgba(239, 68, 68, 0.3)',
-          borderRadius: 'var(--radius-md)',
-          color: 'rgba(239, 68, 68, 0.9)',
-        }}>
-          {error}
-        </div>
-      )}
+      {/* Compile error banner — extracts first GLSL error line number */}
+      {error && open && (() => {
+        const lineMatch = /ERROR:\s*\d+:(\d+)/.exec(error);
+        const lineNo = lineMatch ? parseInt(lineMatch[1], 10) : null;
+        return (
+          <div style={{
+            marginTop: 8, padding: '10px 14px',
+            fontSize: 12, fontFamily: 'var(--font-mono)',
+            lineHeight: 1.5, whiteSpace: 'pre-wrap',
+            background: 'rgba(239, 68, 68, 0.1)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: 'var(--radius-md)',
+            color: 'rgba(239, 68, 68, 0.9)',
+          }}>
+            {lineNo !== null && (
+              <span style={{ fontWeight: 600 }}>{t('editor.errorAtLine', { line: lineNo })}: </span>
+            )}
+            {error}
+          </div>
+        );
+      })()}
 
       <div style={{
         display: 'grid',
@@ -158,13 +165,13 @@ export function ShaderCodeEditor({ code, onChange, onReset, error }: ShaderCodeE
           <div style={{ position: 'relative' }}>
             <button
               onClick={handleCopy}
-              title="Copy code"
+              title={t('editor.copy')}
               style={{ position: 'absolute', top: 8, right: 8, zIndex: 2, display: 'flex', alignItems: 'center', gap: 4, padding: '4px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg-secondary)', color: 'var(--color-text-secondary)', cursor: 'pointer', fontSize: 12 }}
             >
               {copied ? (
-                <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg> Copied</>
+                <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg> {t('editor.copied')}</>
               ) : (
-                <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy</>
+                <><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> {t('editor.copy')}</>
               )}
             </button>
             <div ref={containerRef} style={{ borderRadius: 12, overflow: 'hidden', border: '1px solid var(--color-border)' }} />

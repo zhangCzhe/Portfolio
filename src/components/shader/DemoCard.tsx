@@ -10,12 +10,10 @@ import type { ShaderDemo, ShaderPreset } from '../../shader/types';
 interface DemoCardProps {
   demo: ShaderDemo;
   variant: 'shader' | 'filter';
-  width?: number;
-  height?: number;
 }
 
-export function DemoCard({ demo, variant, width = 400, height = 300 }: DemoCardProps) {
-  const { i18n } = useTranslation();
+export function DemoCard({ demo, variant }: DemoCardProps) {
+  const { t, i18n } = useTranslation();
   const lang = i18n.language.startsWith('zh') ? 'zh' : 'en';
   const originalSource = useShaderSource(demo.source);
 
@@ -60,24 +58,20 @@ export function DemoCard({ demo, variant, width = 400, height = 300 }: DemoCardP
           <WebcamCapture
             fragmentShader={activeSource}
             uniforms={values}
-            width={width}
-            height={height}
             className="w-full"
           />
         ) : (
           <ShaderCanvas
             fragmentShader={activeSource}
             uniforms={values}
-            width={width}
-            height={height}
             interactive={demo.interactive}
             className="w-full"
             onCompileError={setCompileError}
           />
         )
       ) : (
-        <div className="webgl-fallback rounded-t-lg" style={{ width, height }}>
-          Loading...
+        <div className="skeleton rounded-t-lg w-full flex items-center justify-center" style={{ aspectRatio: '4 / 3' }}>
+          <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>{t('common.loading')}</span>
         </div>
       )}
       <div className="p-4 sm:p-5">

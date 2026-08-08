@@ -21,13 +21,18 @@ export default function EntryPage({ onEnter }: EntryPageProps) {
 
   // Scroll/touch/keyboard to enter
   useEffect(() => {
-    const enter = () => onEnter();
-    window.addEventListener('wheel', (e: WheelEvent) => { if (e.deltaY > 30) onEnter(); }, { passive: true, once: true });
-    window.addEventListener('touchstart', enter, { passive: true, once: true });
-    window.addEventListener('keydown', (e: KeyboardEvent) => { if (e.key === 'ArrowDown' || e.key === 'PageDown') onEnter(); }, { once: true });
+    const onWheel = (e: WheelEvent) => { if (e.deltaY > 30) onEnter(); };
+    const onTouch = () => onEnter();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === 'Enter' || e.key === ' ') onEnter();
+    };
+    window.addEventListener('wheel', onWheel, { passive: true });
+    window.addEventListener('touchstart', onTouch, { passive: true });
+    window.addEventListener('keydown', onKey);
     return () => {
-      window.removeEventListener('wheel', enter);
-      window.removeEventListener('touchstart', enter);
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('touchstart', onTouch);
+      window.removeEventListener('keydown', onKey);
     };
   }, [onEnter]);
 

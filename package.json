@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "check:shaders": "grep -rEn 'varying|#version|iTime|iResolution|iMouse' src/shaders || echo 'PASS: all shaders clean'"
+    "check:shaders": "grep -rEn \"varying|#version|iTime|iResolution|iMouse\" src/shaders || echo PASS: all shaders clean"
   },
   "dependencies": {
     "@codemirror/commands": "^6.10.4",

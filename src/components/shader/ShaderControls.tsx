@@ -42,7 +42,7 @@ export function ShaderControls({
                 className={`px-2.5 py-0.5 text-[11px] rounded-full border transition-colors cursor-pointer
                   ${activePreset === preset.name
                     ? 'border-accent text-accent bg-accent/10'
-                    : 'border-white/10 text-text-secondary hover:border-white/30'
+                    : 'border-border-subtle text-text-secondary hover:border-border-hover'
                   }`}
               >
                 {presetName(preset)}
@@ -71,7 +71,7 @@ export function ShaderControls({
                   step={param.step}
                   value={values[param.name] ?? param.default}
                   onChange={(e) => onParamChange(param.name, parseFloat(e.target.value))}
-                  className="flex-1 h-1 appearance-none bg-white/10 rounded-full cursor-pointer
+                  className="flex-1 h-1 appearance-none bg-bg-quaternary rounded-full cursor-pointer
                            [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3
                            [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full
                            [&::-webkit-slider-thumb]:bg-accent"

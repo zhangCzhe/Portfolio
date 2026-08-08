@@ -5,8 +5,6 @@ import { useCanvasSlot } from '../../shader/CanvasPool';
 interface ShaderCanvasProps {
   fragmentShader: string;
   uniforms?: Record<string, number>;
-  width?: number;
-  height?: number;
   className?: string;
   interactive?: boolean;
   onCompileError?: (error: string | null) => void;
@@ -15,8 +13,6 @@ interface ShaderCanvasProps {
 export function ShaderCanvas({
   fragmentShader,
   uniforms = {},
-  width = 400,
-  height = 300,
   className = '',
   interactive = false,
   onCompileError,
@@ -83,12 +79,10 @@ export function ShaderCanvas({
     const container = containerRef.current;
     if (!container) return;
 
-    // Create canvas only when needed
+    // Create canvas only when needed — sized by CSS (100% of container),
+    // actual pixel resolution is handled by WebGLRenderer's ResizeObserver + DPR.
     const canvas = document.createElement('canvas');
-    canvas.className = `shader-canvas rounded-lg ${className}`;
-    canvas.style.cssText = `width:${width}px;height:${height}px;background:var(--color-bg-secondary)`;
-    canvas.width = width;
-    canvas.height = height;
+    canvas.className = `shader-canvas ${className}`;
     if (interactive) {
       canvas.addEventListener('mousemove', handleMouseMove as unknown as EventListener);
     }
@@ -121,7 +115,7 @@ export function ShaderCanvas({
         canvasRef.current = null;
       }
     };
-  }, [active, width, height, className, interactive]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [active, className, interactive]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Live-edit recompile
   useEffect(() => {
@@ -140,7 +134,7 @@ export function ShaderCanvas({
   }, [uniforms]);
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', width, height }}>
+    <div ref={containerRef} className="relative w-full overflow-hidden rounded-lg" style={{ aspectRatio: '4 / 3' }}>
       {(!active || glError) && (
         <div
           className="webgl-fallback rounded-lg"

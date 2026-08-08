@@ -14,12 +14,16 @@ export default function MainLayout() {
       transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
     >
       <Navigation />
-      <main style={{ paddingTop: 52 }}>
+      <main style={{ paddingTop: 'var(--nav-height)' }}>
         {categories.map((cat) => (
           <ShaderSection
             key={cat.id}
             id={cat.id}
             partKey={cat.id}
+            title={cat.title}
+            titleZh={cat.titleZh}
+            description={cat.description}
+            descriptionZh={cat.descriptionZh}
             series={cat.series}
             cardType={cat.cardType}
             tone={cat.tone}
@@ -28,7 +32,7 @@ export default function MainLayout() {
       </main>
       <footer className="py-8 text-center border-t" style={{ borderColor: 'var(--color-border)' }}>
         <p style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
-          Shader Portfolio &copy; {new Date().getFullYear()} &mdash; Built with WebGL2 &amp; React
+          Shader Portfolio &copy; {new Date().getFullYear()} &mdash; Built with WebGL &amp; React
         </p>
       </footer>
     </motion.div>
