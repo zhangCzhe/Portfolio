@@ -6,6 +6,7 @@ import { PerformanceGovernor } from '../engine/PerformanceGovernor';
 import { detectInitialTier, readDeviceEnvironment } from '../engine/quality';
 import { ShaderCompileError } from '../engine/compile';
 import type { UniformSchema } from '../engine/types';
+import type { CanvasPool } from '../engine/CanvasPool';
 import { useCanvasSlot } from './useCanvasSlot';
 
 export interface UseShaderCanvasOptions {
@@ -13,6 +14,8 @@ export interface UseShaderCanvasOptions {
   uniforms?: UniformSchema;
   interactive?: boolean;
   canvasClassName?: string;
+  /** 展厅模式传入 focusCanvasPool；缺省用卡片池 */
+  pool?: CanvasPool;
   onCompileError?: (message: string | null) => void;
 }
 
@@ -31,13 +34,14 @@ export function useShaderCanvas({
   fragmentShader,
   uniforms,
   canvasClassName = '',
+  pool,
   onCompileError,
 }: UseShaderCanvasOptions): UseShaderCanvasResult {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const rendererRef = useRef<GLRenderer | null>(null);
   const [visible, setVisible] = useState(false);
   const [glError, setGlError] = useState<string | null>(null);
-  const slotGranted = useCanvasSlot(visible);
+  const slotGranted = useCanvasSlot(visible, pool);
   const active = visible && slotGranted;
 
   const fragmentRef = useRef(fragmentShader);
