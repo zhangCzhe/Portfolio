@@ -7,7 +7,7 @@ import { WebcamCapture } from '../ui/WebcamCapture';
 import { ShaderControls } from './ShaderControls';
 import { useShaderSource } from '../../hooks/useShaderSource';
 import { cardCanvasPool } from '../../hooks/useCanvasSlot';
-import type { ShaderDemo, ShaderPreset } from '../../shader/types';
+import type { ShaderDemo, ShaderParamValue, ShaderPreset } from '../../shader/types';
 
 interface FramedArtworkProps {
   demo: ShaderDemo;
@@ -22,10 +22,10 @@ export function FramedArtwork({ demo, variant, onFocus }: FramedArtworkProps) {
 
   const initialValues: Record<string, number> = {};
   for (const p of demo.params) {
-    initialValues[p.name] = p.default;
+    initialValues[p.name] = p.default ?? 0;
   }
 
-  const [values, setValues] = useState<Record<string, number>>(initialValues);
+  const [values, setValues] = useState<Record<string, ShaderParamValue>>(initialValues);
   const [activePreset, setActivePreset] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
 

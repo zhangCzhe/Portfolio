@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import type { ShaderParam, ShaderPreset } from '../../shader/types';
+import type { ShaderParam, ShaderParamValue, ShaderPreset } from '../../shader/types';
 
 interface ShaderControlsProps {
   params: ShaderParam[];
   presets: ShaderPreset[];
-  values: Record<string, number>;
+  values: Record<string, ShaderParamValue>;
   onParamChange: (name: string, value: number) => void;
   onPresetSelect: (preset: ShaderPreset) => void;
   activePreset: string | null;
@@ -53,22 +53,26 @@ export function ShaderControls({
         <div>
           <span className="shader-controls__heading">{t('common.params')}</span>
           <div className="shader-controls__sliders">
-            {params.map((param) => (
-              <div key={param.name} className="shader-controls__row">
-                <span className="shader-controls__name">{label(param)}</span>
-                <input
-                  type="range"
-                  min={param.min}
-                  max={param.max}
-                  step={param.step}
-                  value={values[param.name] ?? param.default}
-                  onChange={(e) => onParamChange(param.name, parseFloat(e.target.value))}
-                />
-                <span className="shader-controls__value">
-                  {(values[param.name] ?? param.default).toFixed(param.step < 1 ? 1 : 0)}
-                </span>
-              </div>
-            ))}
+            {params.map((param) => {
+              const raw = values[param.name] ?? param.default ?? 0;
+              const numeric = typeof raw === 'number' ? raw : 0;
+              return (
+                <div key={param.name} className="shader-controls__row">
+                  <span className="shader-controls__name">{label(param)}</span>
+                  <input
+                    type="range"
+                    min={param.min}
+                    max={param.max}
+                    step={param.step}
+                    value={numeric}
+                    onChange={(e) => onParamChange(param.name, parseFloat(e.target.value))}
+                  />
+                  <span className="shader-controls__value">
+                    {numeric.toFixed((param.step ?? 1) < 1 ? 1 : 0)}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

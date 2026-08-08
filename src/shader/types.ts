@@ -1,17 +1,25 @@
+/** 参数值：float 标量或 RGB 颜色数组 */
+export type ShaderParamValue = number | [number, number, number];
+
 export interface ShaderPreset {
   name: string;
   nameZh: string;
-  values: Record<string, number>;
+  values: Record<string, ShaderParamValue>;
 }
 
 export interface ShaderParam {
   name: string;
   label: string;
   labelZh: string;
-  min: number;
-  max: number;
-  step: number;
-  default: number;
+  /** 参数类型，默认 'float'（向后兼容） */
+  type?: 'float' | 'color';
+  // float 字段:
+  min?: number;
+  max?: number;
+  step?: number;
+  default?: number;
+  // color 字段:
+  defaultColor?: [number, number, number];
 }
 
 export interface ShaderDemo {

@@ -9,7 +9,7 @@ import { WebcamCapture } from '../ui/WebcamCapture';
 import { ShaderControls } from '../shader/ShaderControls';
 import { ShaderCodeEditor } from '../shader/ShaderCodeEditor';
 import { useShaderSource } from '../../hooks/useShaderSource';
-import type { ShaderDemo, ShaderPreset } from '../../shader/types';
+import type { ShaderDemo, ShaderParamValue, ShaderPreset } from '../../shader/types';
 
 interface FocusRoomProps {
   demo: ShaderDemo;
@@ -21,7 +21,7 @@ interface FocusRoomProps {
 
 interface FocusCanvasProps {
   source: string;
-  values: Record<string, number>;
+  values: Record<string, ShaderParamValue>;
   interactive?: boolean;
   onCompileError: (msg: string | null) => void;
 }
@@ -66,11 +66,11 @@ export function FocusRoom({ demo, kicker, variant, onClose }: FocusRoomProps) {
 
   const initialValues: Record<string, number> = {};
   for (const p of demo.params) {
-    initialValues[p.name] = p.default;
+    initialValues[p.name] = p.default ?? 0;
   }
 
   // 展厅内参数/代码状态完全独立：关闭即销毁，不回写卡片（spec §4）
-  const [values, setValues] = useState<Record<string, number>>(initialValues);
+  const [values, setValues] = useState<Record<string, ShaderParamValue>>(initialValues);
   const [activePreset, setActivePreset] = useState<string | null>(null);
   const [editedSource, setEditedSource] = useState<string | null>(null);
   const [compileError, setCompileError] = useState<string | null>(null);
