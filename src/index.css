@@ -78,13 +78,10 @@
 
 /* ================================================================
    Reset & Base
+   (Tailwind v4 preflight already resets margins/padding/box-sizing —
+    a hand-rolled un-layered `*` reset would override layered utilities
+    like .mx-auto, so we intentionally do NOT re-add one here)
    ================================================================ */
-
-*, *::before, *::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
 
 html {
   scroll-behavior: smooth;
