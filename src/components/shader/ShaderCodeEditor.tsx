@@ -4,8 +4,10 @@ import { defaultKeymap, indentWithTab } from '@codemirror/commands';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { useTranslation } from 'react-i18next';
 
-let glslExtension: any = null;
-async function loadGLSLExtension() {
+import type { Extension } from '@codemirror/state';
+
+let glslExtension: Extension | null = null;
+async function loadGLSLExtension(): Promise<Extension> {
   if (glslExtension) return glslExtension;
   const [{ shader }, { StreamLanguage }] = await Promise.all([
     import('@codemirror/legacy-modes/mode/clike'),
@@ -164,7 +166,8 @@ export function ShaderCodeEditor({ code, onChange, onReset, error }: ShaderCodeE
         open &&
         (() => {
           const lineMatch = /ERROR:\s*\d+:(\d+)/.exec(error);
-          const lineNo = lineMatch ? parseInt(lineMatch[1], 10) : null;
+          const lineNo =
+            lineMatch && lineMatch[1] !== undefined ? parseInt(lineMatch[1], 10) : null;
           return (
             <div
               style={{

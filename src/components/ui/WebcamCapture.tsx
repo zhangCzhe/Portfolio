@@ -56,9 +56,15 @@ export function WebcamCapture({
     if (!el) return;
 
     const raf = requestAnimationFrame(() => {
-      observerRef.current = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), {
-        threshold: 0,
-      });
+      observerRef.current = new IntersectionObserver(
+        ([e]) => {
+          if (!e) return;
+          setVisible(e.isIntersecting);
+        },
+        {
+          threshold: 0,
+        },
+      );
       observerRef.current.observe(el);
     });
 

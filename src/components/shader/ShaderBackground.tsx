@@ -34,6 +34,7 @@ export function ShaderBackground({ fragmentShader, className }: ShaderBackground
     // Pause when off-screen
     observerRef.current = new IntersectionObserver(
       ([e]) => {
+        if (!e) return;
         if (e.isIntersecting) {
           rendererRef.current?.start();
         } else {

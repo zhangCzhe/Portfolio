@@ -7,7 +7,9 @@ const waiters = new Map<number, () => void>();
 
 function notifyNext() {
   if (waiters.size === 0 || activeCount >= MAX_ACTIVE) return;
-  const [id, resolve] = waiters.entries().next().value!;
+  const next = waiters.entries().next();
+  if (next.done) return;
+  const [id, resolve] = next.value;
   waiters.delete(id);
   activeCount++;
   resolve();

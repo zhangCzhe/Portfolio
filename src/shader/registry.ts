@@ -9,7 +9,8 @@ const shaderModules = import.meta.glob<string>('../shaders/**/*.glsl', {
 const sourceCache = new Map<string, string>();
 
 export async function loadSource(path: string): Promise<string> {
-  if (sourceCache.has(path)) return sourceCache.get(path)!;
+  const cached = sourceCache.get(path);
+  if (cached !== undefined) return cached;
 
   const key = `../shaders/${path}`;
   const loader = shaderModules[key];

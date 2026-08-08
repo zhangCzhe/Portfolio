@@ -135,7 +135,8 @@ export class WebGLRenderer {
   // ── internal ──
 
   private compile(): { ok: true } | { ok: false; error: string } {
-    const gl = this.gl!;
+    const gl = this.gl;
+    if (!gl) return { ok: false, error: 'No GL context' };
     try {
       const program = createProgram(gl, FULLSCREEN_VERTEX_SHADER, this.fragmentSource);
 
@@ -156,8 +157,9 @@ export class WebGLRenderer {
   }
 
   private discoverUniforms(): void {
-    const gl = this.gl!;
-    const program = this.program!;
+    const gl = this.gl;
+    const program = this.program;
+    if (!gl || !program) return;
     const count = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS) as number;
     this.uniforms = [];
 
@@ -171,8 +173,9 @@ export class WebGLRenderer {
   }
 
   private setupGeometry(): void {
-    const gl = this.gl!;
-    const program = this.program!;
+    const gl = this.gl;
+    const program = this.program;
+    if (!gl || !program) return;
     if (this.buffer) gl.deleteBuffer(this.buffer);
 
     this.buffer = createFullscreenQuad(gl);
@@ -200,9 +203,9 @@ export class WebGLRenderer {
   }
 
   private render = (): void => {
-    if (this.lost || this.disposed) return;
-    const gl = this.gl!;
-    const program = this.program!;
+    const gl = this.gl;
+    const program = this.program;
+    if (!gl || !program || this.lost || this.disposed) return;
 
     const t = (performance.now() - this.startTime) * 0.001;
 
@@ -242,10 +245,13 @@ export class WebGLRenderer {
             gl.uniform2f(u.location, 640, 480);
           }
           break;
-        default:
-          if (this.customValues[u.name] !== undefined) {
-            gl.uniform1f(u.location, this.customValues[u.name]);
+        default: {
+          const value = this.customValues[u.name];
+          if (value !== undefined) {
+            gl.uniform1f(u.location, value);
           }
+          break;
+        }
       }
     }
 
@@ -260,7 +266,8 @@ export class WebGLRenderer {
   };
 
   private onContextRestored = (): void => {
-    const gl = this.gl!;
+    const gl = this.gl;
+    if (!gl) return;
     try {
       if (this.program) gl.deleteProgram(this.program);
     } catch {
