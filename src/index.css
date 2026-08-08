@@ -336,6 +336,121 @@ input[type='range']::-moz-range-thumb {
 }
 
 /* ================================================================
+   Museum Nav — 双形态（首屏馆签 / 滚动后固定栏）
+   ================================================================ */
+
+.museum-nav-minimal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 32px;
+}
+
+.museum-nav-minimal__brand {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-text-primary);
+}
+
+.museum-nav__lang {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--color-text-secondary);
+  padding: 6px 10px;
+  transition: color 0.15s ease;
+}
+
+.museum-nav__lang:hover {
+  color: var(--color-text-primary);
+}
+
+.museum-nav-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--color-bg-primary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.museum-nav-fixed__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--nav-height);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.museum-nav-fixed__links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.museum-nav-fixed__link {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  padding: 6px 12px;
+  transition: color 0.15s ease;
+}
+
+.museum-nav-fixed__link:hover {
+  color: var(--color-text-primary);
+}
+
+.museum-nav-fixed__link.active {
+  color: var(--color-accent);
+}
+
+.museum-nav-fixed__right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.museum-nav__burger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  padding: 6px 10px;
+}
+
+.museum-nav-fixed__menu {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .museum-nav-fixed__links {
+    display: none;
+  }
+  .museum-nav__burger {
+    display: block;
+  }
+  .museum-nav-fixed__menu {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 24px 14px;
+    overflow: hidden;
+    border-top: 1px solid var(--color-border);
+  }
+}
+
+/* ================================================================
    Easing curves
    ================================================================ */
 
