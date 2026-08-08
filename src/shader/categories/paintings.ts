@@ -434,6 +434,143 @@ const paintings: ShaderCategory = {
         },
       ],
     },
+    {
+      id: 'surrealism',
+      title: 'Surrealism',
+      titleZh: '超现实主义',
+      description: 'Melting clocks and dream-logic distortions.',
+      descriptionZh: '融化的时钟与梦的逻辑。',
+      demos: [
+        {
+          id: 'dali-melting',
+          title: 'The Persistence of Memory — Dali',
+          titleZh: '记忆的永恒 — 达利',
+          description: 'Melting clocks droop and distort; mouse proximity accelerates the melt.',
+          descriptionZh: '软钟随鼠标融化变形，光标越近融化越快。',
+          source: 'paintings/surrealism/01-dali-melting.glsl',
+          params: [
+            {
+              name: 'u_melt_amount',
+              label: 'Melt',
+              labelZh: '融化程度',
+              min: 0,
+              max: 1,
+              step: 0.02,
+              default: 0.5,
+            },
+            {
+              name: 'u_clock_color',
+              label: 'Clock',
+              labelZh: '钟面色',
+              type: 'color',
+              defaultColor: [0.9, 0.85, 0.7],
+            },
+            {
+              name: 'u_horizon_color',
+              label: 'Horizon',
+              labelZh: '地平线色',
+              type: 'color',
+              defaultColor: [0.55, 0.4, 0.25],
+            },
+          ],
+          presets: [
+            {
+              name: 'solid',
+              nameZh: '坚硬',
+              values: {
+                u_melt_amount: 0.15,
+                u_clock_color: [0.9, 0.85, 0.7],
+                u_horizon_color: [0.55, 0.4, 0.25],
+              },
+            },
+            {
+              name: 'soften',
+              nameZh: '软化',
+              values: {
+                u_melt_amount: 0.5,
+                u_clock_color: [0.85, 0.8, 0.65],
+                u_horizon_color: [0.5, 0.35, 0.2],
+              },
+            },
+            {
+              name: 'melted',
+              nameZh: '融尽',
+              values: {
+                u_melt_amount: 0.9,
+                u_clock_color: [0.7, 0.65, 0.5],
+                u_horizon_color: [0.4, 0.3, 0.2],
+              },
+            },
+          ],
+          interactive: true,
+        },
+      ],
+    },
+    {
+      id: 'secession',
+      title: 'Vienna Secession',
+      titleZh: '维也纳分离派',
+      description: 'Gold leaf fragments shimmer and gather around the cursor.',
+      descriptionZh: '金箔碎片随鼠标闪烁聚拢。',
+      demos: [
+        {
+          id: 'klimt-kiss',
+          title: 'The Kiss — Klimt',
+          titleZh: '吻 — 克里姆特',
+          description:
+            'Golden fragments sparkle and drift toward the mouse; abstract figures in warm embrace.',
+          descriptionZh: '金箔碎片闪烁并向光标聚拢，抽象人形在暖色调中相拥。',
+          source: 'paintings/secession/01-klimt-kiss.glsl',
+          params: [
+            {
+              name: 'u_sparkle_density',
+              label: 'Sparkle',
+              labelZh: '闪光密度',
+              min: 0.2,
+              max: 2,
+              step: 0.05,
+              default: 1.0,
+            },
+            {
+              name: 'u_gold_hue',
+              label: 'Gold',
+              labelZh: '金色调',
+              min: 0,
+              max: 1,
+              step: 0.02,
+              default: 0.5,
+            },
+            {
+              name: 'u_fragment_size',
+              label: 'Fragment',
+              labelZh: '碎片大小',
+              min: 0.5,
+              max: 2,
+              step: 0.05,
+              default: 1.0,
+            },
+          ],
+          presets: [
+            {
+              name: 'subtle',
+              nameZh: '含蓄',
+              values: { u_sparkle_density: 0.5, u_gold_hue: 0.3, u_fragment_size: 0.7 },
+            },
+            {
+              name: 'opulent',
+              nameZh: '华丽',
+              values: { u_sparkle_density: 1.2, u_gold_hue: 0.5, u_fragment_size: 1.0 },
+            },
+            {
+              name: 'dazzling',
+              nameZh: '炫目',
+              values: { u_sparkle_density: 1.8, u_gold_hue: 0.7, u_fragment_size: 1.5 },
+            },
+          ],
+          interactive: true,
+        },
+      ],
+    },
   ],
 };
 
