@@ -78,13 +78,20 @@ class ShaderCompileError extends Error {
 }
 
 // GLRenderer.ts — 只做渲染，不认识 React
+// 接口细化（实现期确定，已与此 spec 其余部分对齐）：
+//  - init() 与构造函数分离：WebGL 不可用返回 false，而非抛异常
+//  - spec 初稿的 setResolutionScale(s) 合并为 setQuality(tier)，由 QUALITY_LEVELS 表驱动
+//  - context 属性含 preserveDrawingBuffer: true（e2e 像素断言 + 子项目 3 截图功能铺路）
 class GLRenderer {
-  constructor(canvas: HTMLCanvasElement, opts?: { dpr?: number })
-  setFragmentShader(source: string): void       // 编译失败抛 ShaderCompileError
+  constructor(canvas: HTMLCanvasElement, opts?: { initialTier?: QualityTier })
+  init(): boolean                                 // 获取 context + 监听 + 初始 resize；无 WebGL 返回 false
+  setFragmentShader(source: string): void        // 编译失败抛 ShaderCompileError
   setUniforms(u: Partial<UniformSchema>): void
   setVideoTexture(v: HTMLVideoElement | null): void  // webcam 滤镜用
-  setResolutionScale(s: number): void            // governor 调它
-  render(time: number): void
+  setMouse(x: number, y: number): void
+  setQuality(tier: QualityTier): void            // governor 调它（maxDpr + 分辨率缩放）
+  resize(): void
+  render(timeMs: number): void                   // 单帧绘制；rAF 由 FrameLoop 管
   onContextChange(cb: 'lost' | 'restored', fn: () => void): void
   dispose(): void
 }
@@ -104,10 +111,14 @@ class PerformanceGovernor {
 }
 
 // CanvasPool.ts
+// 接口细化：acquire 返回 ticket（含 cancel），支持"等待中取消"（组件在等待 slot 时被卸载的场景）
+interface CanvasTicket { id: number; promise: Promise<CanvasSlot>; cancel(): void }
+interface CanvasSlot { id: number; release(): void }  // 重复 release 安全（no-op）
 class CanvasPool {
   constructor(maxContexts: number)
-  acquire(): Promise<CanvasSlot>
-  release(slot: CanvasSlot): void
+  acquire(): CanvasTicket
+  readonly activeCount: number
+  readonly pendingCount: number
 }
 ```
 
