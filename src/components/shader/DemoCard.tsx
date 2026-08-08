@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ShaderCanvas } from './ShaderCanvas';
+import { CanvasErrorBoundary } from '../ui/CanvasErrorBoundary';
 import { WebcamCapture } from '../ui/WebcamCapture';
 import { ShaderCodeEditor } from './ShaderCodeEditor';
 import { ShaderControls } from './ShaderControls';
@@ -57,13 +58,15 @@ export function DemoCard({ demo, variant }: DemoCardProps) {
         variant === 'filter' ? (
           <WebcamCapture fragmentShader={activeSource} uniforms={values} className="w-full" />
         ) : (
-          <ShaderCanvas
-            fragmentShader={activeSource}
-            uniforms={values}
-            interactive={demo.interactive}
-            className="w-full"
-            onCompileError={setCompileError}
-          />
+          <CanvasErrorBoundary>
+            <ShaderCanvas
+              fragmentShader={activeSource}
+              uniforms={values}
+              interactive={demo.interactive}
+              className="w-full"
+              onCompileError={setCompileError}
+            />
+          </CanvasErrorBoundary>
         )
       ) : (
         <div

@@ -34,6 +34,9 @@ i18n
             copied: '已复制',
             errorAtLine: '第 {{line}} 行',
           },
+          canvas: {
+            unavailable: '此作品暂时无法展出',
+          },
           webcam: {
             denied: '摄像头权限被拒绝',
             unavailable: '摄像头不可用',
@@ -73,6 +76,9 @@ i18n
             copy: 'Copy',
             copied: 'Copied',
             errorAtLine: 'Line {{line}}',
+          },
+          canvas: {
+            unavailable: 'This artwork is temporarily unavailable',
           },
           webcam: {
             denied: 'Camera permission denied',
