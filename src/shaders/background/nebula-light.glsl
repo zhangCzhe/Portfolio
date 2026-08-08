@@ -1,3 +1,5 @@
+// "Morning Marble" — museum entrance background
+// Multi-layer FBM with vein-like domain warping, paper-tone palette.
 #ifdef GL_ES
 precision mediump float;
 #else
@@ -14,20 +16,18 @@ float noise(vec2 p) {
   vec2 i = floor(p);
   vec2 f = fract(p);
   f = f * f * (3.0 - 2.0 * f);
-
-  float a = hash(i);
-  float b = hash(i + vec2(1.0, 0.0));
-  float c = hash(i + vec2(0.0, 1.0));
-  float d = hash(i + vec2(1.0, 1.0));
-
-  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+  return mix(
+    mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+    mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x),
+    f.y
+  );
 }
 
 float fbm(vec2 p) {
   float value = 0.0;
   float amplitude = 0.5;
   float frequency = 1.0;
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 6; i++) {
     value += amplitude * noise(p * frequency);
     frequency *= 2.0;
     amplitude *= 0.5;
@@ -36,34 +36,46 @@ float fbm(vec2 p) {
 }
 
 void main() {
-  vec2 uv = gl_FragCoord.xy / u_resolution;
-  vec2 centered = uv - 0.5;
+  vec2 uv = (gl_FragCoord.xy * 2.0 - u_resolution) / min(u_resolution.x, u_resolution.y);
+  uv *= 1.8;
 
-  float t = u_time * 0.15;
+  // Very slow drift
+  float drift = u_time * 0.015;
 
-  vec2 q1 = centered * 2.0 + vec2(sin(t * 0.3), cos(t * 0.4)) * 0.5;
-  float f1 = fbm(q1 * 3.0 + t * 0.2);
+  // Domain warping for vein-like marble patterns
+  vec2 q = vec2(
+    fbm(uv + vec2(0.5, 2.0) * drift),
+    fbm(uv + vec2(2.0, 0.5) * drift)
+  );
 
-  vec2 q2 = centered * 2.5 + vec2(cos(t * 0.5), sin(t * 0.35)) * 0.6;
-  float f2 = fbm(q2 * 4.0 - t * 0.15);
+  vec2 r = vec2(
+    fbm(uv + 1.5 * q + vec2(1.7, 9.2) * drift),
+    fbm(uv + 1.5 * q + vec2(8.3, 2.8) * drift)
+  );
 
-  // 纸色系调色板
-  vec3 paper = vec3(0.969, 0.957, 0.933); // #f7f4ee
-  vec3 cream = vec3(0.925, 0.906, 0.863); // 稍深纸色
-  vec3 brass = vec3(0.541, 0.427, 0.231); // #8a6d3b
-  vec3 sage = vec3(0.620, 0.663, 0.596);  // 灰绿晕染
+  float marble = fbm(uv + 2.0 * r);
 
-  vec3 color = mix(paper, cream, f1);
-  color = mix(color, brass, f2 * 0.18);
-  color = mix(color, sage, fbm(centered * 5.0 + t * 0.1) * 0.12);
+  // Soften and remap for subtle paper texture
+  marble = smoothstep(0.15, 0.85, marble);
 
-  // 柔和纸面暗角（压暗而非压黑）
-  float vignette = 1.0 - length(centered) * 0.5;
-  color *= mix(0.92, 1.0, smoothstep(0.0, 1.0, vignette));
+  // Paper-tone palette: ivory white base (#f7f4ee) with warm gray veins
+  vec3 ivory = vec3(0.969, 0.957, 0.933);     // #f7f4ee
+  vec3 warmGray = vec3(0.875, 0.851, 0.804);   // #dfd9cd
+  vec3 veinGold = vec3(0.831, 0.741, 0.631);   // #d4bda1
+  vec3 deepVein = vec3(0.765, 0.710, 0.663);   // #c3b5a9
 
-  // 细腻纸纹
-  float grain = hash(uv + fract(u_time * 0.01)) * 0.02;
-  color += grain;
+  // Blend layers based on marble value
+  float v1 = smoothstep(0.35, 0.55, marble);
+  float v2 = smoothstep(0.45, 0.6, marble);
+  float v3 = smoothstep(0.5, 0.65, marble);
 
-  gl_FragColor = vec4(color, 1.0);
+  vec3 col = mix(ivory, warmGray, v1 * 0.4);
+  col = mix(col, veinGold, v2 * 0.25);
+  col = mix(col, deepVein, v3 * 0.15);
+
+  // Subtle grain texture overlay
+  float grain = hash(uv * 800.0 + drift * 10.0) * 0.015;
+  col += grain;
+
+  gl_FragColor = vec4(col, 1.0);
 }
