@@ -27,6 +27,7 @@ export function DemoCard({ demo, variant }: DemoCardProps) {
   const [activePreset, setActivePreset] = useState<string | null>(null);
   const [editedSource, setEditedSource] = useState<string | null>(null);
   const [compileError, setCompileError] = useState<string | null>(null);
+  const [retryKey, setRetryKey] = useState(0);
 
   const activeSource = editedSource ?? originalSource ?? '';
 
@@ -49,6 +50,13 @@ export function DemoCard({ demo, variant }: DemoCardProps) {
     setCompileError(null);
   }, []);
 
+  // 重试时通过 key 整体重建 WebcamCapture，使 useShaderCanvas 的
+  // IntersectionObserver 绑定到新的容器元素（否则 observer 一直观察旧节点，
+  // visible 恒为 false，重试后永远停在 loading）
+  const handleWebcamRetry = useCallback(() => {
+    setRetryKey((k) => k + 1);
+  }, []);
+
   const title = lang === 'zh' ? demo.titleZh : demo.title;
   const description = lang === 'zh' ? demo.descriptionZh : demo.description;
 
@@ -56,7 +64,13 @@ export function DemoCard({ demo, variant }: DemoCardProps) {
     <div className="card">
       {originalSource ? (
         variant === 'filter' ? (
-          <WebcamCapture fragmentShader={activeSource} uniforms={values} className="w-full" />
+          <WebcamCapture
+            key={retryKey}
+            fragmentShader={activeSource}
+            uniforms={values}
+            className="w-full"
+            onRetry={handleWebcamRetry}
+          />
         ) : (
           <CanvasErrorBoundary>
             <ShaderCanvas

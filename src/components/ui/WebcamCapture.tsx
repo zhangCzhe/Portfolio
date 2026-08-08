@@ -7,6 +7,9 @@ interface WebcamCaptureProps {
   fragmentShader: string;
   uniforms?: UniformSchema;
   className?: string;
+  /** 由父级负责重试：父级通过改变 key 整体重建本组件，
+   *  使 useShaderCanvas 的 IntersectionObserver 重新绑定到新容器 */
+  onRetry: () => void;
 }
 
 const ERROR_KEYS = [
@@ -20,11 +23,15 @@ const ERROR_KEYS = [
 ] as const;
 type ErrorKey = (typeof ERROR_KEYS)[number];
 
-export function WebcamCapture({ fragmentShader, uniforms, className = '' }: WebcamCaptureProps) {
+export function WebcamCapture({
+  fragmentShader,
+  uniforms,
+  className = '',
+  onRetry,
+}: WebcamCaptureProps) {
   const { t } = useTranslation();
   const [error, setError] = useState<ErrorKey | null>(null);
   const [loading, setLoading] = useState(true);
-  const [retryKey, setRetryKey] = useState(0);
   const streamRef = useRef<MediaStream | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const shaderRef = useRef(fragmentShader);
@@ -120,13 +127,7 @@ export function WebcamCapture({ fragmentShader, uniforms, className = '' }: Webc
       video.srcObject = null;
       videoRef.current = null;
     };
-  }, [active, retryKey, rendererRef]);
-
-  const handleRetry = () => {
-    setError(null);
-    setLoading(true);
-    setRetryKey((k) => k + 1);
-  };
+  }, [active, rendererRef]);
 
   if (error) {
     return (
@@ -160,11 +161,7 @@ export function WebcamCapture({ fragmentShader, uniforms, className = '' }: Webc
         </svg>
         <span>{t(`webcam.${error}`)}</span>
         {error !== 'lost' && (
-          <button
-            onClick={handleRetry}
-            className="btn"
-            style={{ fontSize: 12, padding: '6px 16px' }}
-          >
+          <button onClick={onRetry} className="btn" style={{ fontSize: 12, padding: '6px 16px' }}>
             {t('webcam.retry')}
           </button>
         )}

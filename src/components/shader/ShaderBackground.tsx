@@ -26,6 +26,7 @@ export function ShaderBackground({ fragmentShader, className }: ShaderBackground
     try {
       renderer.setFragmentShader(fragmentShader);
     } catch (e) {
+      renderer.dispose();
       setError(e instanceof Error ? e.message : String(e));
       return;
     }
