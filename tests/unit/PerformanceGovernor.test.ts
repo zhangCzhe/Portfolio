@@ -51,10 +51,13 @@ describe('PerformanceGovernor', () => {
   });
 
   it('never goes below low', () => {
+    const infoSpy = vi.spyOn(console, 'info').mockImplementation(() => {});
     const g = makeGovernor('low');
     g.feed(300, 100); // 10fps for a long time
     expect(g.governor.tier).toBe('low');
     expect(g.changes).toEqual([]);
+    expect(infoSpy).toHaveBeenCalledWith('[PerformanceGovernor] tier floor reached');
+    infoSpy.mockRestore();
   });
 
   it('upgrades after sustained high fps and notifies', () => {

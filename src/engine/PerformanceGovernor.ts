@@ -63,13 +63,15 @@ export class PerformanceGovernor {
 
     if (fps < this.downgradeFps) {
       this.goodSince = null;
-      if (this.currentTier !== 'low') {
-        this.badSince ??= now;
-        if (now - this.badSince >= this.downgradeSustainMs) {
-          this.currentTier = lower(this.currentTier);
-          this.badSince = null;
-          this.onTierChange(this.currentTier);
-        }
+      if (this.currentTier === 'low') {
+        console.info('[PerformanceGovernor] tier floor reached');
+        return;
+      }
+      this.badSince ??= now;
+      if (now - this.badSince >= this.downgradeSustainMs) {
+        this.currentTier = lower(this.currentTier);
+        this.badSince = null;
+        this.onTierChange(this.currentTier);
       }
       return;
     }
