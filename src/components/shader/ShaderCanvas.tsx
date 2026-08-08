@@ -51,10 +51,9 @@ export function ShaderCanvas({
     if (!el) return;
 
     const raf = requestAnimationFrame(() => {
-      observerRef.current = new IntersectionObserver(
-        ([e]) => setVisible(e.isIntersecting),
-        { threshold: 0 },
-      );
+      observerRef.current = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), {
+        threshold: 0,
+      });
       observerRef.current.observe(el);
     });
 
@@ -134,12 +133,13 @@ export function ShaderCanvas({
   }, [uniforms]);
 
   return (
-    <div ref={containerRef} className="relative w-full overflow-hidden rounded-lg" style={{ aspectRatio: '4 / 3' }}>
+    <div
+      ref={containerRef}
+      className="relative w-full overflow-hidden rounded-lg"
+      style={{ aspectRatio: '4 / 3' }}
+    >
       {(!active || glError) && (
-        <div
-          className="webgl-fallback rounded-lg"
-          style={{ position: 'absolute', inset: 0 }}
-        />
+        <div className="webgl-fallback rounded-lg" style={{ position: 'absolute', inset: 0 }} />
       )}
     </div>
   );

@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "check:shaders": "grep -rEn \"varying|#version|iTime|iResolution|iMouse\" src/shaders || echo PASS: all shaders clean"
+    "check:shaders": "grep -rEn \"varying|#version|iTime|iResolution|iMouse\" src/shaders || echo PASS: all shaders clean",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@codemirror/commands": "^6.10.4",
@@ -32,6 +34,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.4",
     "oxlint": "^1.75.0",
+    "prettier": "^3.9.6",
     "typescript": "~6.0.2",
     "vite": "^8.2.0"
   }

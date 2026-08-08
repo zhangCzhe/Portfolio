@@ -25,25 +25,30 @@ shader-portfolio（React 19 + TypeScript + Vite 8 + Tailwind v4 + WebGL2）彻�
 ## 1. 工程基线
 
 ### TypeScript 严格化
+
 - `tsconfig.app.json` 开启 `strict: true` 与 `noUncheckedIndexedAccess: true`
 - 消除全部 `!` 非空断言（现状：`src/utils/webgl.ts:54`、`src/shader/WebGLRenderer.ts:157` 等）
 - 消除全部 `eslint-disable` 注释（`ShaderCanvas.tsx:124`、`WebcamCapture.tsx:175`、`ShaderCodeEditor.tsx:92`、`CanvasPool.ts:78`、`useShaderSource.ts:15`）——正确补全 effect 依赖数组，而不是禁用规则
 
 ### 格式化与 lint
+
 - 保留 oxlint（已配置），新增 Prettier 管格式化
 - Prettier 配置：`{ "singleQuote": true, "semi": true, "printWidth": 100 }`（贴合现有风格）
 - package.json 新增 scripts：`format`、`format:check`、`typecheck`、`test`、`test:e2e`
 
 ### 测试框架
+
 - Vitest：引擎纯逻辑单测
 - Playwright：真实浏览器（SwiftShader 软渲染 WebGL）冒烟测试
 
 ### CI 增强（`.github/workflows/deploy.yml`）
+
 - 部署前加 quality gate 任务：`lint → typecheck → 单测 → build → 冒烟`
 - Node 20 → 22，加 npm 缓存
 - 现有 `check:shaders` 脚本纳入 CI
 
 ### 明确不做
+
 - 不加 git hooks（个人项目，CI 卡口足够）
 - 不引入 ESLint（oxlint 已覆盖所需规则，避免双 lint 冗余）
 
@@ -69,8 +74,11 @@ src/hooks/
 ```ts
 // types.ts
 type QualityTier = 'high' | 'medium' | 'low';
-type UniformValue = number | [number, number] | [number, number, number] | [number, number, number, number];
-interface UniformSchema { [name: string]: UniformValue }
+type UniformValue =
+  number | [number, number] | [number, number, number] | [number, number, number, number];
+interface UniformSchema {
+  [name: string]: UniformValue;
+}
 
 // compile.ts
 class ShaderCompileError extends Error {
@@ -83,42 +91,51 @@ class ShaderCompileError extends Error {
 //  - spec 初稿的 setResolutionScale(s) 合并为 setQuality(tier)，由 QUALITY_LEVELS 表驱动
 //  - context 属性含 preserveDrawingBuffer: true（e2e 像素断言 + 子项目 3 截图功能铺路）
 class GLRenderer {
-  constructor(canvas: HTMLCanvasElement, opts?: { initialTier?: QualityTier })
-  init(): boolean                                 // 获取 context + 监听 + 初始 resize；无 WebGL 返回 false
-  setFragmentShader(source: string): void        // 编译失败抛 ShaderCompileError
-  setUniforms(u: Partial<UniformSchema>): void
-  setVideoTexture(v: HTMLVideoElement | null): void  // webcam 滤镜用
-  setMouse(x: number, y: number): void
-  setQuality(tier: QualityTier): void            // governor 调它（maxDpr + 分辨率缩放）
-  resize(): void
-  render(timeMs: number): void                   // 单帧绘制；rAF 由 FrameLoop 管
-  onContextChange(cb: 'lost' | 'restored', fn: () => void): void
-  dispose(): void
+  constructor(canvas: HTMLCanvasElement, opts?: { initialTier?: QualityTier });
+  init(): boolean; // 获取 context + 监听 + 初始 resize；无 WebGL 返回 false
+  setFragmentShader(source: string): void; // 编译失败抛 ShaderCompileError
+  setUniforms(u: Partial<UniformSchema>): void;
+  setVideoTexture(v: HTMLVideoElement | null): void; // webcam 滤镜用
+  setMouse(x: number, y: number): void;
+  setQuality(tier: QualityTier): void; // governor 调它（maxDpr + 分辨率缩放）
+  resize(): void;
+  render(timeMs: number): void; // 单帧绘制；rAF 由 FrameLoop 管
+  onContextChange(cb: 'lost' | 'restored', fn: () => void): void;
+  dispose(): void;
 }
 
 // FrameLoop.ts
 class FrameLoop {
-  constructor(tick: (timeMs: number, frameMs: number) => void)
-  start(): void; stop(): void; readonly running: boolean
+  constructor(tick: (timeMs: number, frameMs: number) => void);
+  start(): void;
+  stop(): void;
+  readonly running: boolean;
   // 内部监听 visibilitychange，hidden 时自动暂停
 }
 
 // PerformanceGovernor.ts
 class PerformanceGovernor {
-  constructor(opts: { initial: QualityTier, onTierChange: (t: QualityTier) => void })
-  sample(frameMs: number): void  // 每帧喂入；内部做降档/升档判断
-  readonly tier: QualityTier
+  constructor(opts: { initial: QualityTier; onTierChange: (t: QualityTier) => void });
+  sample(frameMs: number): void; // 每帧喂入；内部做降档/升档判断
+  readonly tier: QualityTier;
 }
 
 // CanvasPool.ts
 // 接口细化：acquire 返回 ticket（含 cancel），支持"等待中取消"（组件在等待 slot 时被卸载的场景）
-interface CanvasTicket { id: number; promise: Promise<CanvasSlot>; cancel(): void }
-interface CanvasSlot { id: number; release(): void }  // 重复 release 安全（no-op）
+interface CanvasTicket {
+  id: number;
+  promise: Promise<CanvasSlot>;
+  cancel(): void;
+}
+interface CanvasSlot {
+  id: number;
+  release(): void;
+} // 重复 release 安全（no-op）
 class CanvasPool {
-  constructor(maxContexts: number)
-  acquire(): CanvasTicket
-  readonly activeCount: number
-  readonly pendingCount: number
+  constructor(maxContexts: number);
+  acquire(): CanvasTicket;
+  readonly activeCount: number;
+  readonly pendingCount: number;
 }
 ```
 
@@ -136,6 +153,7 @@ ShaderCanvas 组件
 ```
 
 ### 组件侧迁移
+
 - `ShaderCanvas`、`WebcamCapture`、`DemoCard` 改为消费 `useShaderCanvas`
 - `ShaderBackground`（入口页常驻单 context，不走 pool）直接用 GLRenderer + FrameLoop
 - 删除 `src/shader/WebGLRenderer.ts`、`src/utils/webgl.ts`；`src/shader/` 保留 registry/categories 元数据体系
@@ -144,40 +162,46 @@ ShaderCanvas 组件
 
 ### 三档画质（quality.ts）
 
-| 档位 | DPR 上限 | 内部分辨率缩放 |
-|---|---|---|
-| high | min(dpr, 2) | 1.0 |
-| medium | min(dpr, 1.5) | 1.0 |
-| low | 1 | 0.75 |
+| 档位   | DPR 上限      | 内部分辨率缩放 |
+| ------ | ------------- | -------------- |
+| high   | min(dpr, 2)   | 1.0            |
+| medium | min(dpr, 1.5) | 1.0            |
+| low    | 1             | 0.75           |
 
 初始档位：移动端 UA、`deviceMemory ≤ 4` 或 `hardwareConcurrency ≤ 4` → medium 起步；否则 high。
 
 ### PerformanceGovernor 决策规则
+
 - 滑动窗口收集最近 60 帧 `frameMs`
 - **降档**：平均 < 45fps 持续 1.5 秒 → 立即降一档（保护流畅度）
 - **升档**：> 58fps 稳定 5 秒且非最高档 → 升一档；升档后 10 秒冷却（防抖动）
 - low 档到底不再降，控制台 `console.info` 留痕
 
 ### 暂停策略
+
 - `IntersectionObserver`：canvas 滚出视口 → 停 FrameLoop（保留 context，回视口秒恢复）；pool 排队压力大时才销毁最久未见的 context
 - `document.hidden`：切标签页全局暂停（FrameLoop 内置）
 - 入口页 ShaderBackground 迁移到同一套 FrameLoop
 
 ### Context 丢失处理
+
 - `webglcontextlost` → 暂停渲染，卡片显示静态占位
 - `webglcontextrestored` → 重建 program 恢复渲染
 
 ### Webcam 滤镜
+
 沿用现有 cover-fit 逻辑（commit 612afb1），迁入 `useShaderCanvas` 的视频纹理分支。
 
 ## 4. 错误处理与测试
 
 ### 错误处理
+
 - `ShaderCompileError`：解析 WebGL info log → `{ line, message }[]`，供 CodeMirror 行内标注（现有报错 UX 保留）
 - 卡片级 React Error Boundary：单个 shader 崩溃 → 该卡片显示"此作品暂时无法展出"占位，整站不受影响
 - WebGL 完全不可用：保留 EntryPage 检测；MainLayout 补同级 fallback（静态背景 + 说明）
 
 ### Vitest 单测（纯逻辑，fake GL）
+
 - PerformanceGovernor：降档 / 升档 / 冷却 / 到底 决策矩阵
 - CanvasPool：满载排队、释放唤醒等待者、重复释放防护
 - compile.ts：各类 WebGL 错误日志 → 行号解析
@@ -186,6 +210,7 @@ ShaderCanvas 组件
 - GLRenderer：minimal fake WebGL2 context 测 uniform 映射与 dispose 资源释放
 
 ### Playwright 冒烟（SwiftShader 软渲染真 GL）
+
 - 首页加载零 console error
 - 入口页 canvas 渲染出非纯黑像素
 - 点击进入画廊，作品卡片 canvas 均有实际渲染

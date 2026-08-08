@@ -55,11 +55,7 @@ export function DemoCard({ demo, variant }: DemoCardProps) {
     <div className="card">
       {originalSource ? (
         variant === 'filter' ? (
-          <WebcamCapture
-            fragmentShader={activeSource}
-            uniforms={values}
-            className="w-full"
-          />
+          <WebcamCapture fragmentShader={activeSource} uniforms={values} className="w-full" />
         ) : (
           <ShaderCanvas
             fragmentShader={activeSource}
@@ -70,8 +66,13 @@ export function DemoCard({ demo, variant }: DemoCardProps) {
           />
         )
       ) : (
-        <div className="skeleton rounded-t-lg w-full flex items-center justify-center" style={{ aspectRatio: '4 / 3' }}>
-          <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>{t('common.loading')}</span>
+        <div
+          className="skeleton rounded-t-lg w-full flex items-center justify-center"
+          style={{ aspectRatio: '4 / 3' }}
+        >
+          <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
+            {t('common.loading')}
+          </span>
         </div>
       )}
       <div className="p-4 sm:p-5">

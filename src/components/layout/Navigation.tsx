@@ -21,7 +21,9 @@ export default function Navigation() {
   // Close mobile menu on Escape / outside click
   useEffect(() => {
     if (!menuOpen) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setMenuOpen(false); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setMenuOpen(false);
+    };
     const onClick = (e: MouseEvent) => {
       if (navRef.current && !navRef.current.contains(e.target as Node)) setMenuOpen(false);
     };
@@ -74,7 +76,8 @@ export default function Navigation() {
       animate={{ y: 0 }}
       transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
     >
-      <div className="flex items-center justify-between mx-auto px-5 md:px-8"
+      <div
+        className="flex items-center justify-between mx-auto px-5 md:px-8"
         style={{ maxWidth: 980, height: 'var(--nav-height)' }}
       >
         {/* Desktop links */}
@@ -89,8 +92,10 @@ export default function Navigation() {
               {activeSection === id && !shouldReduceMotion && (
                 <motion.div
                   style={{
-                    position: 'absolute', inset: 0,
-                    background: 'rgba(10, 132, 255, 0.12)', borderRadius: 9999,
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'rgba(10, 132, 255, 0.12)',
+                    borderRadius: 9999,
                   }}
                   layoutId="nav-pill"
                   transition={{ type: 'spring', stiffness: 380, damping: 30 }}
@@ -107,11 +112,25 @@ export default function Navigation() {
           aria-label="Menu"
         >
           {menuOpen ? (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
               <path strokeLinecap="round" d="M18 6L6 18M6 6l12 12" />
             </svg>
           ) : (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
               <path strokeLinecap="round" d="M3 12h18M3 6h18M3 18h18" />
             </svg>
           )}
@@ -119,17 +138,43 @@ export default function Navigation() {
 
         {/* Right: language + theme */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-          <button onClick={toggleLang} className="btn-icon" style={{ fontSize: 12, width: 'auto', padding: '0 10px' }}>
+          <button
+            onClick={toggleLang}
+            className="btn-icon"
+            style={{ fontSize: 12, width: 'auto', padding: '0 10px' }}
+          >
             {i18n.language.startsWith('zh') ? 'EN' : '中'}
           </button>
           <button onClick={handleThemeToggle} className="btn-icon" aria-label="Toggle theme">
             {theme === 'dark' ? (
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+              <svg
+                width="16"
+                height="16"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+                />
               </svg>
             ) : (
-              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+              <svg
+                width="16"
+                height="16"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={1.5}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+                />
               </svg>
             )}
           </button>

@@ -25,11 +25,13 @@
 ### Task 1: 引入 Prettier + 全仓库格式化
 
 **Files:**
+
 - Create: `.prettierrc.json`、`.prettierignore`
 - Modify: `package.json`（scripts + devDependencies）
 - Modify: 全部源文件（纯格式化，无语义改动）
 
 **Interfaces:**
+
 - Consumes: 无
 - Produces: `npm run format`、`npm run format:check` 两个命令；后续所有任务在格式化后的代码基线上工作
 
@@ -41,6 +43,7 @@ npm install -D prettier
 ```
 
 `.prettierrc.json`：
+
 ```json
 {
   "singleQuote": true,
@@ -50,6 +53,7 @@ npm install -D prettier
 ```
 
 `.prettierignore`：
+
 ```
 dist
 node_modules
@@ -60,6 +64,7 @@ package-lock.json
 - [ ] **Step 2: 加 scripts**
 
 `package.json` 的 `scripts` 中增加（保留现有全部 scripts）：
+
 ```json
 "format": "prettier --write .",
 "format:check": "prettier --check ."
@@ -87,6 +92,7 @@ git commit -m "chore: add Prettier and format entire codebase"
 ### Task 2: 开启 strict 模式 + 修复存量违规
 
 **Files:**
+
 - Modify: `tsconfig.app.json`（加 strict）
 - Modify: `src/utils/webgl.ts:2,23,54`（`!` 断言）
 - Modify: `src/shader/registry.ts:10`（`!` 断言）
@@ -95,12 +101,14 @@ git commit -m "chore: add Prettier and format entire codebase"
 - Modify: `src/components/shader/ShaderCodeEditor.tsx:7`（`any`）、`:139`（noUncheckedIndexedAccess）
 
 **Interfaces:**
+
 - Consumes: Task 1 的格式化基线
 - Produces: strict 编译环境；后续任务的代码都受 strict 约束。本任务只做机械守卫式修复，**不改变任何运行时行为**
 
 - [ ] **Step 1: 开启 strict**
 
 `tsconfig.app.json` 的 `compilerOptions` 增加：
+
 ```json
 "strict": true,
 "noUncheckedIndexedAccess": true
@@ -114,20 +122,24 @@ Expected: 列出一批错误（`!` 断言相关、可能的隐式 any、索引�
 - [ ] **Step 3: 修复已知违规（机械守卫式）**
 
 `src/utils/webgl.ts` — `createShader`：
+
 ```ts
 const shader = gl.createShader(type);
 if (!shader) throw new Error('Failed to create shader');
 ```
+
 `createProgram`：`const program = gl.createProgram();` 后加 `if (!program) throw new Error('Failed to create program');`
 `createFullscreenQuad`：`const buffer = gl.createBuffer();` 后加 `if (!buffer) throw new Error('Failed to create buffer');`
 
 `src/shader/registry.ts` 的 `loadSource` 开头改为：
+
 ```ts
 const cached = sourceCache.get(path);
 if (cached !== undefined) return cached;
 ```
 
 `src/shader/CanvasPool.ts` 的 `notifyNext`：
+
 ```ts
 function notifyNext() {
   if (waiters.size === 0 || activeCount >= MAX_ACTIVE) return;
@@ -141,6 +153,7 @@ function notifyNext() {
 ```
 
 `src/shader/WebGLRenderer.ts` — 每个 `this.gl!` / `this.program!` 改为守卫：
+
 - `compile()` 开头：`const gl = this.gl; if (!gl) return { ok: false, error: 'No GL context' };`
 - `discoverUniforms()` 开头：`const gl = this.gl; const program = this.program; if (!gl || !program) return;`
 - `setupGeometry()` 开头：同上
@@ -148,13 +161,17 @@ function notifyNext() {
 - `onContextRestored()` 开头：`const gl = this.gl; if (!gl) return;`
 
 `src/components/shader/ShaderCodeEditor.tsx`：
+
 - 第 7 行 `any` 改为类型化：
+
 ```ts
 import type { Extension } from '@codemirror/state';
 let glslExtension: Extension | null = null;
 async function loadGLSLExtension(): Promise<Extension> {
 ```
+
 - 第 139 行附近 `lineMatch[1]` 改为：
+
 ```ts
 const lineMatch = /ERROR:\s*\d+:(\d+)/.exec(error);
 const lineNo = lineMatch && lineMatch[1] !== undefined ? parseInt(lineMatch[1], 10) : null;
@@ -180,10 +197,12 @@ git commit -m "refactor: enable strict TypeScript and remove non-null assertions
 ### Task 3: Vitest 基础设施
 
 **Files:**
+
 - Create: `vitest.config.ts`、`tests/setup.ts`、`tests/unit/smoke.test.ts`
 - Modify: `package.json`（scripts + devDependencies）、`.gitignore`（如有需要）
 
 **Interfaces:**
+
 - Consumes: strict 基线
 - Produces: `npm test`（vitest run）、`npm run test:watch`；`tests/setup.ts` 初始化 i18n 供组件测试用；后续所有单测放在 `tests/unit/`
 
@@ -196,6 +215,7 @@ npm install -D vitest jsdom @testing-library/react
 - [ ] **Step 2: 配置文件**
 
 `vitest.config.ts`：
+
 ```ts
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
@@ -211,11 +231,13 @@ export default defineConfig({
 ```
 
 `tests/setup.ts`：
+
 ```ts
 import '../src/i18n';
 ```
 
 `package.json` scripts 增加：
+
 ```json
 "test": "vitest run",
 "test:watch": "vitest"
@@ -224,6 +246,7 @@ import '../src/i18n';
 - [ ] **Step 3: 写冒烟测试**
 
 `tests/unit/smoke.test.ts`：
+
 ```ts
 import { describe, it, expect } from 'vitest';
 
@@ -251,10 +274,12 @@ git commit -m "test: add Vitest infrastructure with jsdom"
 ### Task 4: engine/types.ts + engine/quality.ts（TDD）
 
 **Files:**
+
 - Create: `src/engine/types.ts`、`src/engine/quality.ts`
 - Test: `tests/unit/quality.test.ts`
 
 **Interfaces:**
+
 - Consumes: Vitest 基础设施
 - Produces（后续任务依赖的确切签名）:
   - `type QualityTier = 'high' | 'medium' | 'low'`
@@ -267,6 +292,7 @@ git commit -m "test: add Vitest infrastructure with jsdom"
 - [ ] **Step 1: 写失败的测试**
 
 `tests/unit/quality.test.ts`：
+
 ```ts
 import { describe, it, expect } from 'vitest';
 import { detectInitialTier, QUALITY_LEVELS } from '../../src/engine/quality';
@@ -276,13 +302,19 @@ describe('detectInitialTier', () => {
     expect(detectInitialTier({ isMobile: true, hardwareConcurrency: 8 })).toBe('medium');
   });
   it('returns medium for low-memory devices', () => {
-    expect(detectInitialTier({ isMobile: false, deviceMemory: 4, hardwareConcurrency: 8 })).toBe('medium');
+    expect(detectInitialTier({ isMobile: false, deviceMemory: 4, hardwareConcurrency: 8 })).toBe(
+      'medium',
+    );
   });
   it('returns medium for few-core devices', () => {
-    expect(detectInitialTier({ isMobile: false, deviceMemory: 8, hardwareConcurrency: 4 })).toBe('medium');
+    expect(detectInitialTier({ isMobile: false, deviceMemory: 8, hardwareConcurrency: 4 })).toBe(
+      'medium',
+    );
   });
   it('returns high for capable desktops', () => {
-    expect(detectInitialTier({ isMobile: false, deviceMemory: 16, hardwareConcurrency: 12 })).toBe('high');
+    expect(detectInitialTier({ isMobile: false, deviceMemory: 16, hardwareConcurrency: 12 })).toBe(
+      'high',
+    );
   });
   it('returns high when hardware hints are unavailable', () => {
     expect(detectInitialTier({ isMobile: false })).toBe('high');
@@ -309,19 +341,18 @@ Expected: FAIL（Cannot find module '../../src/engine/quality'）
 - [ ] **Step 3: 实现**
 
 `src/engine/types.ts`：
+
 ```ts
 export type QualityTier = 'high' | 'medium' | 'low';
 
 export type UniformValue =
-  | number
-  | [number, number]
-  | [number, number, number]
-  | [number, number, number, number];
+  number | [number, number] | [number, number, number] | [number, number, number, number];
 
 export type UniformSchema = Record<string, UniformValue>;
 ```
 
 `src/engine/quality.ts`：
+
 ```ts
 import type { QualityTier } from './types';
 
@@ -377,10 +408,12 @@ git commit -m "feat(engine): add quality tiers and initial device detection"
 ### Task 5: engine/compile.ts（TDD）
 
 **Files:**
+
 - Create: `src/engine/compile.ts`
 - Test: `tests/unit/compile.test.ts`
 
 **Interfaces:**
+
 - Consumes: 无（纯函数 + Error 子类）
 - Produces:
   - `interface ShaderError { line: number; message: string }`
@@ -391,6 +424,7 @@ git commit -m "feat(engine): add quality tiers and initial device detection"
 - [ ] **Step 1: 写失败的测试**
 
 `tests/unit/compile.test.ts`：
+
 ```ts
 import { describe, it, expect } from 'vitest';
 import { parseShaderLog, compileShaderProgram, ShaderCompileError } from '../../src/engine/compile';
@@ -450,7 +484,7 @@ describe('compileShaderProgram', () => {
       const err = e as ShaderCompileError;
       expect(err.stage).toBe('compile');
       expect(err.errors[0]?.line).toBe(4);
-      expect(err.message).toContain("ERROR: 0:4");
+      expect(err.message).toContain('ERROR: 0:4');
     }
   });
   it('throws ShaderCompileError with stage=link on link failure', () => {
@@ -478,6 +512,7 @@ Expected: FAIL（模块不存在）
 - [ ] **Step 3: 实现**
 
 `src/engine/compile.ts`：
+
 ```ts
 export interface ShaderError {
   line: number;
@@ -569,10 +604,12 @@ git commit -m "feat(engine): add shader compile module with structured errors"
 ### Task 6: engine/PerformanceGovernor.ts（TDD）
 
 **Files:**
+
 - Create: `src/engine/PerformanceGovernor.ts`
 - Test: `tests/unit/PerformanceGovernor.test.ts`
 
 **Interfaces:**
+
 - Consumes: `QualityTier`（Task 4）
 - Produces:
   - `class PerformanceGovernor`，构造参数 `GovernorOptions { initial, onTierChange, now?, windowSize?, downgradeFps?, downgradeSustainMs?, upgradeFps?, upgradeSustainMs?, upgradeCooldownMs? }`
@@ -582,6 +619,7 @@ git commit -m "feat(engine): add shader compile module with structured errors"
 - [ ] **Step 1: 写失败的测试**
 
 `tests/unit/PerformanceGovernor.test.ts`：
+
 ```ts
 import { describe, it, expect, vi } from 'vitest';
 import { PerformanceGovernor } from '../../src/engine/PerformanceGovernor';
@@ -598,7 +636,9 @@ function makeGovernor(initial: QualityTier, startAt = 0) {
   return {
     governor,
     changes,
-    advance(ms: number) { now += ms; },
+    advance(ms: number) {
+      now += ms;
+    },
     feed(frames: number, frameMs: number, stepMs = frameMs) {
       for (let i = 0; i < frames; i++) {
         now += stepMs;
@@ -676,6 +716,7 @@ Expected: FAIL（模块不存在）
 - [ ] **Step 3: 实现**
 
 `src/engine/PerformanceGovernor.ts`：
+
 ```ts
 import type { QualityTier } from './types';
 
@@ -787,10 +828,12 @@ git commit -m "feat(engine): add PerformanceGovernor with hysteresis tier contro
 ### Task 7: engine/FrameLoop.ts（TDD）
 
 **Files:**
+
 - Create: `src/engine/FrameLoop.ts`
 - Test: `tests/unit/FrameLoop.test.ts`
 
 **Interfaces:**
+
 - Consumes: 无
 - Produces:
   - `type FrameTick = (timeMs: number, frameMs: number) => void`
@@ -800,6 +843,7 @@ git commit -m "feat(engine): add PerformanceGovernor with hysteresis tier contro
 - [ ] **Step 1: 写失败的测试**
 
 `tests/unit/FrameLoop.test.ts`：
+
 ```ts
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { FrameLoop } from '../../src/engine/FrameLoop';
@@ -906,6 +950,7 @@ Expected: FAIL（模块不存在）
 - [ ] **Step 3: 实现**
 
 `src/engine/FrameLoop.ts`：
+
 ```ts
 export type FrameTick = (timeMs: number, frameMs: number) => void;
 
@@ -975,11 +1020,13 @@ git commit -m "feat(engine): add FrameLoop with visibility-aware rAF management"
 ### Task 8: engine/CanvasPool.ts + hooks/useCanvasSlot.ts（TDD）
 
 **Files:**
+
 - Create: `src/engine/CanvasPool.ts`、`src/hooks/useCanvasSlot.ts`
 - Modify: `src/shader/CanvasPool.ts`（改为兼容 re-export shim，保持现有组件不崩）
 - Test: `tests/unit/CanvasPool.test.ts`
 
 **Interfaces:**
+
 - Consumes: 无
 - Produces:
   - `interface CanvasSlot { id: number; release(): void }`（重复 release 为 no-op）
@@ -992,6 +1039,7 @@ git commit -m "feat(engine): add FrameLoop with visibility-aware rAF management"
 - [ ] **Step 1: 写失败的测试**
 
 `tests/unit/CanvasPool.test.ts`：
+
 ```ts
 import { describe, it, expect } from 'vitest';
 import { CanvasPool, type CanvasSlot } from '../../src/engine/CanvasPool';
@@ -1069,6 +1117,7 @@ Expected: FAIL（模块不存在）
 - [ ] **Step 3: 实现**
 
 `src/engine/CanvasPool.ts`：
+
 ```ts
 export interface CanvasSlot {
   readonly id: number;
@@ -1142,6 +1191,7 @@ export class CanvasPool {
 ```
 
 `src/hooks/useCanvasSlot.ts`：
+
 ```ts
 import { useEffect, useRef, useState } from 'react';
 import { CanvasPool } from '../engine/CanvasPool';
@@ -1183,6 +1233,7 @@ export function useCanvasSlot(active: boolean, pool: CanvasPool = cardCanvasPool
 ```
 
 `src/shader/CanvasPool.ts` 整体替换为兼容 shim（保持 `import { useCanvasSlot } from '../../shader/CanvasPool'` 继续工作）：
+
 ```ts
 // 兼容层：引擎迁移完成后删除（见重构计划 Task 13）
 export { useCanvasSlot } from '../hooks/useCanvasSlot';
@@ -1205,10 +1256,12 @@ git commit -m "feat(engine): rewrite CanvasPool as injectable class with ticket 
 ### Task 9: tests/helpers/fakeGL.ts + engine/GLRenderer.ts（TDD · 核心任务）
 
 **Files:**
+
 - Create: `tests/helpers/fakeGL.ts`、`src/engine/GLRenderer.ts`
 - Test: `tests/unit/GLRenderer.test.ts`
 
 **Interfaces:**
+
 - Consumes: `compileShaderProgram` / `ShaderCompileError`（Task 5）、`QUALITY_LEVELS`（Task 4）、`UniformSchema`（Task 4）
 - Produces（Task 10+ 依赖）:
   - `class GLRenderer`：`constructor(canvas, opts?: { initialTier?: QualityTier })`、`init(): boolean`、`setFragmentShader(source): void`（抛 ShaderCompileError）、`setUniforms(u: Partial<UniformSchema>): void`、`setVideoTexture(v: HTMLVideoElement | null): void`、`setMouse(x, y): void`、`setQuality(tier): void`、`resize(): void`、`render(timeMs): void`、`onContextChange(kind: 'lost' | 'restored', fn: () => void): void`、`dispose(): void`
@@ -1218,6 +1271,7 @@ git commit -m "feat(engine): rewrite CanvasPool as injectable class with ticket 
 - [ ] **Step 1: 写 FakeGL 测试替身**
 
 `tests/helpers/fakeGL.ts`：
+
 ```ts
 export interface FakeActiveUniform {
   name: string;
@@ -1343,7 +1397,11 @@ export class FakeGL {
   }
   getExtension(name: string): object | null {
     if (name === 'WEBGL_lose_context') {
-      return { loseContext: () => { this.loseContextCalled = true; } };
+      return {
+        loseContext: () => {
+          this.loseContextCalled = true;
+        },
+      };
     }
     return null;
   }
@@ -1355,7 +1413,17 @@ export function makeFakeCanvas(gl: FakeGL, rectWidth = 300, rectHeight = 200): H
     value: (type: string) => (type.startsWith('webgl') ? gl : null),
   });
   canvas.getBoundingClientRect = () =>
-    ({ width: rectWidth, height: rectHeight, top: 0, left: 0, right: rectWidth, bottom: rectHeight, x: 0, y: 0, toJSON: () => ({}) }) as DOMRect;
+    ({
+      width: rectWidth,
+      height: rectHeight,
+      top: 0,
+      left: 0,
+      right: rectWidth,
+      bottom: rectHeight,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    }) as DOMRect;
   return canvas;
 }
 ```
@@ -1363,6 +1431,7 @@ export function makeFakeCanvas(gl: FakeGL, rectWidth = 300, rectHeight = 200): H
 - [ ] **Step 2: 写失败的测试**
 
 `tests/unit/GLRenderer.test.ts`：
+
 ```ts
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { GLRenderer } from '../../src/engine/GLRenderer';
@@ -1407,7 +1476,10 @@ describe('GLRenderer', () => {
   });
 
   it('render feeds built-in uniforms and draws', () => {
-    gl.activeUniforms = [{ name: 'u_time', type: 0x1406 }, { name: 'u_resolution', type: 0x8b50 }];
+    gl.activeUniforms = [
+      { name: 'u_time', type: 0x1406 },
+      { name: 'u_resolution', type: 0x8b50 },
+    ];
     const canvas = makeFakeCanvas(gl);
     const renderer = new GLRenderer(canvas);
     renderer.init();
@@ -1490,6 +1562,7 @@ Expected: FAIL（模块不存在）
 - [ ] **Step 4: 实现**
 
 `src/engine/GLRenderer.ts`：
+
 ```ts
 import { compileShaderProgram } from './compile';
 import { QUALITY_LEVELS } from './quality';
@@ -1546,11 +1619,12 @@ export class GLRenderer {
       antialias: false,
       preserveDrawingBuffer: true,
       powerPreference: 'high-performance',
-    }) ?? this.canvas.getContext('webgl', {
-      alpha: true,
-      antialias: false,
-      preserveDrawingBuffer: true,
-    })) as GL | null;
+    }) ??
+      this.canvas.getContext('webgl', {
+        alpha: true,
+        antialias: false,
+        preserveDrawingBuffer: true,
+      })) as GL | null;
     if (!gl) return false;
     this.gl = gl;
     this.canvas.addEventListener('webglcontextlost', this.handleContextLost);
@@ -1655,10 +1729,26 @@ export class GLRenderer {
     this.canvas.removeEventListener('webglcontextrestored', this.handleContextRestored);
     const gl = this.gl;
     if (gl) {
-      try { if (this.program) gl.deleteProgram(this.program); } catch { /* ignore */ }
-      try { if (this.buffer) gl.deleteBuffer(this.buffer); } catch { /* ignore */ }
-      try { if (this.texture) gl.deleteTexture(this.texture); } catch { /* ignore */ }
-      try { gl.getExtension('WEBGL_lose_context')?.loseContext(); } catch { /* ignore */ }
+      try {
+        if (this.program) gl.deleteProgram(this.program);
+      } catch {
+        /* ignore */
+      }
+      try {
+        if (this.buffer) gl.deleteBuffer(this.buffer);
+      } catch {
+        /* ignore */
+      }
+      try {
+        if (this.texture) gl.deleteTexture(this.texture);
+      } catch {
+        /* ignore */
+      }
+      try {
+        gl.getExtension('WEBGL_lose_context')?.loseContext();
+      } catch {
+        /* ignore */
+      }
     }
     this.program = null;
     this.buffer = null;
@@ -1756,7 +1846,9 @@ export class GLRenderer {
     try {
       if (this.fragmentSource) this.setFragmentShader(this.fragmentSource);
       this.resize();
-    } catch { /* 重建失败时保持无 program，render 空转 */ }
+    } catch {
+      /* 重建失败时保持无 program，render 空转 */
+    }
     this.emit('restored');
   };
 }
@@ -1779,12 +1871,15 @@ git commit -m "feat(engine): add GLRenderer with quality scaling and context-los
 ### Task 10: hooks/useShaderCanvas.ts（TDD）
 
 **Files:**
+
 - Create: `src/hooks/useShaderCanvas.ts`
 - Test: `tests/unit/useShaderCanvas.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `GLRenderer`、`FrameLoop`、`PerformanceGovernor`、`detectInitialTier`/`readDeviceEnvironment`、`useCanvasSlot`、`ShaderCompileError`
 - Produces（Task 11/12 的组件依赖）:
+
   ```ts
   interface UseShaderCanvasOptions {
     fragmentShader: string;
@@ -1799,13 +1894,15 @@ git commit -m "feat(engine): add GLRenderer with quality scaling and context-los
     active: boolean;
     glError: string | null;
   }
-  function useShaderCanvas(opts: UseShaderCanvasOptions): UseShaderCanvasResult
+  function useShaderCanvas(opts: UseShaderCanvasOptions): UseShaderCanvasResult;
   ```
+
   语义：IntersectionObserver（首帧 rAF 后挂载，避免所有卡片同时触发）→ visible → useCanvasSlot → active 时创建 canvas + GLRenderer + Governor + FrameLoop；失活时全部销毁释放；fragmentShader 变化时热重编译；编译错误经 `ShaderCompileError.message`（原始 log 字符串）透传给 onCompileError，保持现有编辑器报错 UX
 
 - [ ] **Step 1: 写失败的测试**
 
 `tests/unit/useShaderCanvas.test.tsx`：
+
 ```tsx
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, act } from '@testing-library/react';
@@ -1827,10 +1924,7 @@ function flushRaf(times: number[]) {
 
 function triggerIntersection(isIntersecting: boolean) {
   for (const cb of intersectionCbs.splice(0)) {
-    cb(
-      [{ isIntersecting } as IntersectionObserverEntry],
-      {} as IntersectionObserver,
-    );
+    cb([{ isIntersecting } as IntersectionObserverEntry], {} as IntersectionObserver);
   }
 }
 
@@ -1843,7 +1937,13 @@ class FakeIntersectionObserver {
   disconnect(): void {}
 }
 
-function Host({ fragmentShader, onCompileError }: { fragmentShader: string; onCompileError?: (m: string | null) => void }) {
+function Host({
+  fragmentShader,
+  onCompileError,
+}: {
+  fragmentShader: string;
+  onCompileError?: (m: string | null) => void;
+}) {
   const { containerRef, active, glError } = useShaderCanvas({ fragmentShader, onCompileError });
   return (
     <div>
@@ -1929,6 +2029,7 @@ Expected: FAIL（模块不存在）
 - [ ] **Step 3: 实现**
 
 `src/hooks/useShaderCanvas.ts`：
+
 ```ts
 import { useEffect, useRef, useState } from 'react';
 import type { RefObject } from 'react';
@@ -2089,6 +2190,7 @@ git commit -m "feat(engine): add useShaderCanvas hook unifying canvas lifecycle"
 ### Task 11: CanvasErrorBoundary + 迁移 ShaderCanvas 与 DemoCard
 
 **Files:**
+
 - Create: `src/components/ui/CanvasErrorBoundary.tsx`
 - Modify: `src/components/shader/ShaderCanvas.tsx`（整体重写为薄封装）
 - Modify: `src/components/shader/DemoCard.tsx`（包 ErrorBoundary）
@@ -2096,6 +2198,7 @@ git commit -m "feat(engine): add useShaderCanvas hook unifying canvas lifecycle"
 - Test: `tests/unit/CanvasErrorBoundary.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useShaderCanvas`（Task 10）
 - Produces:
   - `CanvasErrorBoundary`（class 组件，`{ children: ReactNode }`）
@@ -2104,6 +2207,7 @@ git commit -m "feat(engine): add useShaderCanvas hook unifying canvas lifecycle"
 - [ ] **Step 1: 写 ErrorBoundary 的失败测试**
 
 `tests/unit/CanvasErrorBoundary.test.tsx`：
+
 ```tsx
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
@@ -2144,6 +2248,7 @@ Expected: FAIL（模块不存在）
 - [ ] **Step 3: 实现 ErrorBoundary + i18n key**
 
 `src/components/ui/CanvasErrorBoundary.tsx`：
+
 ```tsx
 import { Component } from 'react';
 import type { ReactNode } from 'react';
@@ -2161,10 +2266,7 @@ function Fallback() {
   );
 }
 
-export class CanvasErrorBoundary extends Component<
-  { children: ReactNode },
-  { hasError: boolean }
-> {
+export class CanvasErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean }> {
   state = { hasError: false };
 
   static getDerivedStateFromError(): { hasError: boolean } {
@@ -2182,6 +2284,7 @@ export class CanvasErrorBoundary extends Component<
 ```
 
 `src/i18n/index.ts` 在 zh、en 两个资源对象中各加（放在 `webcam` 相关 key 附近）：
+
 ```ts
 // zh
 canvas: { unavailable: '此作品暂时无法展出' },
@@ -2197,6 +2300,7 @@ Expected: 2 passed
 - [ ] **Step 5: 重写 ShaderCanvas 为薄封装**
 
 `src/components/shader/ShaderCanvas.tsx` 整体替换：
+
 ```tsx
 import { useCallback } from 'react';
 import { useShaderCanvas } from '../../hooks/useShaderCanvas';
@@ -2253,21 +2357,25 @@ export function ShaderCanvas({
 ```
 
 `src/components/shader/DemoCard.tsx`：把渲染分支包进 boundary（其余不变）：
+
 ```tsx
-{variant === 'filter' ? (
-  <WebcamCapture fragmentShader={activeSource} uniforms={values} className="w-full" />
-) : (
-  <CanvasErrorBoundary>
-    <ShaderCanvas
-      fragmentShader={activeSource}
-      uniforms={values}
-      interactive={demo.interactive}
-      className="w-full"
-      onCompileError={setCompileError}
-    />
-  </CanvasErrorBoundary>
-)}
+{
+  variant === 'filter' ? (
+    <WebcamCapture fragmentShader={activeSource} uniforms={values} className="w-full" />
+  ) : (
+    <CanvasErrorBoundary>
+      <ShaderCanvas
+        fragmentShader={activeSource}
+        uniforms={values}
+        interactive={demo.interactive}
+        className="w-full"
+        onCompileError={setCompileError}
+      />
+    </CanvasErrorBoundary>
+  );
+}
 ```
+
 并加 import：`import { CanvasErrorBoundary } from '../ui/CanvasErrorBoundary';`
 
 - [ ] **Step 6: 全量验证（含人工视觉走查）**
@@ -2290,9 +2398,11 @@ git commit -m "refactor: migrate ShaderCanvas to useShaderCanvas, add CanvasErro
 ### Task 12: 迁移 WebcamCapture
 
 **Files:**
+
 - Modify: `src/components/ui/WebcamCapture.tsx`（重写渲染生命周期，保留摄像头与错误 UX）
 
 **Interfaces:**
+
 - Consumes: `useShaderCanvas`（Task 10）。注意：hook 的 `uniforms` 参数接受 `UniformSchema`，现有 `Record<string, number>` 兼容
 - Produces: WebcamCapture 对外 props 签名**不变**：`{ fragmentShader, uniforms?, className? }`；错误 key（denied/unavailable/start/nogl/lost/insecure/shader）与重试 UX 不变
 
@@ -2301,6 +2411,7 @@ git commit -m "refactor: migrate ShaderCanvas to useShaderCanvas, add CanvasErro
 要点：组件自己管理 video 元素与 getUserMedia stream 生命周期（挂在 `active` 上）；渲染交给 `useShaderCanvas`；video 元素创建后经 `rendererRef.current?.setVideoTexture(video)` 挂到渲染器（在 video state 变化的 effect 里做）。`fragmentShader`/`uniforms` 同步已由 hook 处理。
 
 整体替换 `src/components/ui/WebcamCapture.tsx`：
+
 ```tsx
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -2313,7 +2424,15 @@ interface WebcamCaptureProps {
   className?: string;
 }
 
-const ERROR_KEYS = ['denied', 'unavailable', 'start', 'nogl', 'lost', 'insecure', 'shader'] as const;
+const ERROR_KEYS = [
+  'denied',
+  'unavailable',
+  'start',
+  'nogl',
+  'lost',
+  'insecure',
+  'shader',
+] as const;
 type ErrorKey = (typeof ERROR_KEYS)[number];
 
 export function WebcamCapture({ fragmentShader, uniforms, className = '' }: WebcamCaptureProps) {
@@ -2420,12 +2539,28 @@ export function WebcamCapture({ fragmentShader, uniforms, className = '' }: Webc
           fontSize: 14,
         }}
       >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity={0.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.55-2.27A1 1 0 0121 8.62v6.76a1 1 0 01-1.45.89L15 14m-2 0H5a2 2 0 01-2-2V8a2 2 0 012-2h8a2 2 0 012 2v4z" />
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          opacity={0.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15 10l4.55-2.27A1 1 0 0121 8.62v6.76a1 1 0 01-1.45.89L15 14m-2 0H5a2 2 0 01-2-2V8a2 2 0 012-2h8a2 2 0 012 2v4z"
+          />
         </svg>
         <span>{t(`webcam.${error}`)}</span>
         {error !== 'lost' && (
-          <button onClick={handleRetry} className="btn" style={{ fontSize: 12, padding: '6px 16px' }}>
+          <button
+            onClick={handleRetry}
+            className="btn"
+            style={{ fontSize: 12, padding: '6px 16px' }}
+          >
             {t('webcam.retry')}
           </button>
         )}
@@ -2434,7 +2569,11 @@ export function WebcamCapture({ fragmentShader, uniforms, className = '' }: Webc
   }
 
   return (
-    <div ref={containerRef} className="relative w-full overflow-hidden rounded-lg" style={{ aspectRatio: '4 / 3' }}>
+    <div
+      ref={containerRef}
+      className="relative w-full overflow-hidden rounded-lg"
+      style={{ aspectRatio: '4 / 3' }}
+    >
       {(!active || loading) && (
         <div
           className="skeleton"
@@ -2479,6 +2618,7 @@ git commit -m "refactor: migrate WebcamCapture to useShaderCanvas video branch"
 ### Task 13: 迁移 ShaderBackground + support 工具 + 删除旧文件 + 清除残余 eslint-disable
 
 **Files:**
+
 - Create: `src/engine/support.ts`
 - Modify: `src/components/shader/ShaderBackground.tsx`（重写）
 - Modify: `src/EntryPage.tsx`（用 support 工具）
@@ -2489,6 +2629,7 @@ git commit -m "refactor: migrate WebcamCapture to useShaderCanvas video branch"
 - Delete: `src/shader/WebGLRenderer.ts`、`src/utils/webgl.ts`、`src/shader/CanvasPool.ts`
 
 **Interfaces:**
+
 - Consumes: 全部引擎模块与 hook
 - Produces:
   - `isWebGLSupported(): boolean`（`src/engine/support.ts`）
@@ -2497,6 +2638,7 @@ git commit -m "refactor: migrate WebcamCapture to useShaderCanvas video branch"
 - [ ] **Step 1: support.ts**
 
 `src/engine/support.ts`：
+
 ```ts
 export function isWebGLSupported(): boolean {
   const canvas = document.createElement('canvas');
@@ -2505,27 +2647,41 @@ export function isWebGLSupported(): boolean {
 ```
 
 `EntryPage.tsx` 第 16-20 行的内联检测替换为：
+
 ```ts
 useEffect(() => {
   if (!isWebGLSupported()) setWebglOk(false);
 }, []);
 ```
+
 （加 `import { isWebGLSupported } from './engine/support';`）
 
 `MainLayout.tsx`：在组件顶部加 WebGL 支持检测，不支持时渲染静态 fallback：
+
 ```tsx
 import { isWebGLSupported } from '../../engine/support';
 // 组件内：
 const [webglOk] = useState(() => isWebGLSupported());
 if (!webglOk) {
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-bg-primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        background: 'var(--color-bg-primary)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 24,
+      }}
+    >
       <p style={{ fontSize: 15, color: 'var(--color-text-secondary)' }}>{t('webgl.unsupported')}</p>
     </div>
   );
 }
 ```
+
 MainLayout 目前没有 useTranslation——加 `import { useTranslation } from 'react-i18next';` 并在组件内 `const { t } = useTranslation();`。i18n 双语 key：
+
 ```ts
 // zh
 webgl: { unsupported: '您的浏览器不支持 WebGL，无法展示这些作品。请使用最新版 Chrome / Edge / Safari 访问。' },
@@ -2536,6 +2692,7 @@ webgl: { unsupported: 'Your browser does not support WebGL. Please visit with th
 - [ ] **Step 2: 重写 ShaderBackground**
 
 `src/components/shader/ShaderBackground.tsx` 整体替换（不走 pool，直接用 GLRenderer + FrameLoop；保留 resize 与离屏暂停）：
+
 ```tsx
 import { useEffect, useRef, useState } from 'react';
 import { GLRenderer } from '../../engine/GLRenderer';
@@ -2615,6 +2772,7 @@ export function ShaderBackground({ fragmentShader, className }: ShaderBackground
 - [ ] **Step 3: WebcamCapture 接 context-lost**
 
 在 Task 12 版本的摄像头生命周期 effect 中，`rendererRef.current?.setVideoTexture(video)` 之后加：
+
 ```ts
 const renderer = rendererRef.current;
 renderer?.onContextChange('lost', () => {
@@ -2626,12 +2784,15 @@ renderer?.onContextChange('lost', () => {
 - [ ] **Step 4: 修掉剩余 eslint-disable**
 
 `src/components/shader/ShaderCodeEditor.tsx` 初始化 effect（现 92 行）：
+
 ```ts
   }, [open, handleChange]);
 ```
+
 （`handleChange` 已是 useCallback 且其依赖 `onChange` 由 DemoCard 用 useCallback 稳定传入，语义不变。）
 
 `src/hooks/useShaderSource.ts` 整体替换：
+
 ```ts
 import { useState, useEffect } from 'react';
 import { loadSource, getSource } from '../shader/registry';
@@ -2666,6 +2827,7 @@ grep -rn "WebGLRenderer\|utils/webgl\|shader/CanvasPool" src/ || echo "CLEAN: no
 grep -rn "eslint-disable" src/ || echo "CLEAN: no eslint-disable"
 grep -rEn "(\w+)!\.|(\w+)!\[|\)!\b" src/ || echo "CLEAN: no non-null assertions"
 ```
+
 Expected: 三条 CLEAN（如 ShaderCanvas/WebcamCapture 还有旧 import，改为从 `../../hooks/useCanvasSlot` 导入 useCanvasSlot——但按 Task 11/12 的重写它们已不再直接引用，若 grep 命中则按报错修正 import 路径）
 
 - [ ] **Step 6: 全量验证 + 人工走查**
@@ -2688,10 +2850,12 @@ git commit -m "refactor: remove legacy WebGLRenderer stack, add WebGL support fa
 ### Task 14: Playwright 冒烟测试
 
 **Files:**
+
 - Create: `playwright.config.ts`、`tests/e2e/smoke.spec.ts`
 - Modify: `package.json`（scripts + devDependencies）
 
 **Interfaces:**
+
 - Consumes: 已迁移完成的站点
 - Produces: `npm run test:e2e`；CI（Task 15）将调用它
 
@@ -2705,6 +2869,7 @@ npx playwright install chromium
 - [ ] **Step 2: 配置**
 
 `playwright.config.ts`：
+
 ```ts
 import { defineConfig } from '@playwright/test';
 
@@ -2729,6 +2894,7 @@ export default defineConfig({
 ```
 
 `package.json` scripts 增加：
+
 ```json
 "test:e2e": "playwright test"
 ```
@@ -2736,6 +2902,7 @@ export default defineConfig({
 - [ ] **Step 3: 写冒烟测试**
 
 `tests/e2e/smoke.spec.ts`：
+
 ```ts
 import { test, expect } from '@playwright/test';
 
@@ -2810,21 +2977,24 @@ git commit -m "test: add Playwright WebGL smoke tests"
 ### Task 15: CI quality gate + 最终全量验证
 
 **Files:**
+
 - Modify: `.github/workflows/deploy.yml`（quality job + Node 22 + deploy 依赖）
 
 **Interfaces:**
+
 - Consumes: 此前所有任务提供的命令（lint / format:check / typecheck / test / build / test:e2e / check:shaders）
 - Produces: 部署前必须通过完整 quality gate
 
 - [ ] **Step 1: 更新 workflow**
 
 `.github/workflows/deploy.yml` 整体替换：
+
 ```yaml
 name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -2833,7 +3003,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: "pages"
+  group: 'pages'
   cancel-in-progress: false
 
 jobs:
@@ -2914,9 +3084,11 @@ jobs:
 - [ ] **Step 2: 本地模拟 CI 全量验证**
 
 Run:
+
 ```bash
 npm run lint && npm run format:check && npx tsc -b && npm run check:shaders && npm test && npm run build && npm run test:e2e
 ```
+
 Expected: 全部通过（与 CI 相同的命令序列）
 
 - [ ] **Step 3: Commit**
@@ -2929,6 +3101,7 @@ git commit -m "ci: add quality gate (lint, typecheck, tests, e2e) before deploy"
 - [ ] **Step 4: 确认验收标准**
 
 对照 spec 成功标准逐条确认：
+
 1. `lint && typecheck && test` 全绿，strict 下零 `!`、零 eslint-disable ✓（Task 13 的 grep 验证）
 2. CI quality gate 绿才部署 ✓（本任务）
 3. 降档可观察 ✓（governor 单测覆盖；真机验证留到子项目 3 性能调优时做）

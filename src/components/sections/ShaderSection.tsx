@@ -23,7 +23,15 @@ const PART_NUMS: Record<ShaderCategoryId, { zh: string; en: string }> = {
 };
 
 /** Carousel row — wheel-to-horizontal, drag-to-scroll, edge fades + arrows */
-function CarouselRow({ demos, variant, tone }: { demos: ShaderDemo[]; variant: 'shader' | 'filter'; tone: 'dark' | 'light' }) {
+function CarouselRow({
+  demos,
+  variant,
+  tone,
+}: {
+  demos: ShaderDemo[];
+  variant: 'shader' | 'filter';
+  tone: 'dark' | 'light';
+}) {
   const ref = useRef<HTMLDivElement>(null);
   const [canLeft, setCanLeft] = useState(false);
   const [canRight, setCanRight] = useState(false);
@@ -101,7 +109,10 @@ function CarouselRow({ demos, variant, tone }: { demos: ShaderDemo[]; variant: '
   return (
     <div
       className="carousel-wrap"
-      style={{ ['--fade-color' as string]: tone === 'light' ? 'var(--color-bg-secondary)' : 'var(--color-bg-primary)' }}
+      style={{
+        ['--fade-color' as string]:
+          tone === 'light' ? 'var(--color-bg-secondary)' : 'var(--color-bg-primary)',
+      }}
     >
       <div ref={ref} className="carousel gap-4 sm:gap-6">
         {demos.map((demo) => (
@@ -123,7 +134,14 @@ function CarouselRow({ demos, variant, tone }: { demos: ShaderDemo[]; variant: '
         className={`carousel-arrow left ${canLeft ? 'visible' : ''}`}
         style={{ pointerEvents: canLeft ? 'auto' : 'none' }}
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
         </svg>
       </button>
@@ -134,7 +152,14 @@ function CarouselRow({ demos, variant, tone }: { demos: ShaderDemo[]; variant: '
         className={`carousel-arrow right ${canRight ? 'visible' : ''}`}
         style={{ pointerEvents: canRight ? 'auto' : 'none' }}
       >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+        >
           <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
         </svg>
       </button>
@@ -160,7 +185,9 @@ export default function ShaderSection({
   return (
     <section
       id={id}
-      style={{ background: tone === 'light' ? 'var(--color-bg-secondary)' : 'var(--color-bg-primary)' }}
+      style={{
+        background: tone === 'light' ? 'var(--color-bg-secondary)' : 'var(--color-bg-primary)',
+      }}
       className="py-16 md:py-24"
     >
       <div className="mx-auto px-5 md:px-8 max-w-[980px]">
@@ -168,12 +195,8 @@ export default function ShaderSection({
           <div className="text-sm font-medium tracking-wider text-accent mb-2">
             {lang === 'zh' ? pn.zh : pn.en}
           </div>
-          <h2 className="section-title">
-            {lang === 'zh' ? titleZh : title}
-          </h2>
-          <p className="section-desc">
-            {lang === 'zh' ? descriptionZh : description}
-          </p>
+          <h2 className="section-title">{lang === 'zh' ? titleZh : title}</h2>
+          <p className="section-desc">{lang === 'zh' ? descriptionZh : description}</p>
         </div>
 
         {series.map((s) => (

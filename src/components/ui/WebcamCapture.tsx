@@ -9,7 +9,15 @@ interface WebcamCaptureProps {
   className?: string;
 }
 
-const ERROR_KEYS = ['denied', 'unavailable', 'start', 'nogl', 'lost', 'insecure', 'shader'] as const;
+const ERROR_KEYS = [
+  'denied',
+  'unavailable',
+  'start',
+  'nogl',
+  'lost',
+  'insecure',
+  'shader',
+] as const;
 type ErrorKey = (typeof ERROR_KEYS)[number];
 
 export function WebcamCapture({
@@ -48,10 +56,9 @@ export function WebcamCapture({
     if (!el) return;
 
     const raf = requestAnimationFrame(() => {
-      observerRef.current = new IntersectionObserver(
-        ([e]) => setVisible(e.isIntersecting),
-        { threshold: 0 },
-      );
+      observerRef.current = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), {
+        threshold: 0,
+      });
       observerRef.current.observe(el);
     });
 
@@ -124,7 +131,8 @@ export function WebcamCapture({
     videoRef.current = video;
     renderer.videoElement = video;
 
-    navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 480 } })
+    navigator.mediaDevices
+      .getUserMedia({ video: { width: 640, height: 480 } })
       .then((stream) => {
         if (cancelled) {
           stream.getTracks().forEach((t) => t.stop());
@@ -133,7 +141,10 @@ export function WebcamCapture({
         streamRef.current = stream;
         video.srcObject = stream;
         video.play().catch(() => {
-          if (!cancelled) { setError('start'); setLoading(false); }
+          if (!cancelled) {
+            setError('start');
+            setLoading(false);
+          }
         });
       })
       .catch((err) => {
@@ -176,13 +187,41 @@ export function WebcamCapture({
 
   if (error) {
     return (
-      <div className="webgl-fallback rounded-lg w-full" style={{ aspectRatio: '4 / 3', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 12, padding: 24, fontSize: 14 }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" opacity={0.5}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.55-2.27A1 1 0 0121 8.62v6.76a1 1 0 01-1.45.89L15 14m-2 0H5a2 2 0 01-2-2V8a2 2 0 012-2h8a2 2 0 012 2v4z" />
+      <div
+        className="webgl-fallback rounded-lg w-full"
+        style={{
+          aspectRatio: '4 / 3',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 12,
+          padding: 24,
+          fontSize: 14,
+        }}
+      >
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          opacity={0.5}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15 10l4.55-2.27A1 1 0 0121 8.62v6.76a1 1 0 01-1.45.89L15 14m-2 0H5a2 2 0 01-2-2V8a2 2 0 012-2h8a2 2 0 012 2v4z"
+          />
         </svg>
         <span>{t(`webcam.${error}`)}</span>
         {error !== 'lost' && (
-          <button onClick={handleRetry} className="btn" style={{ fontSize: 12, padding: '6px 16px' }}>
+          <button
+            onClick={handleRetry}
+            className="btn"
+            style={{ fontSize: 12, padding: '6px 16px' }}
+          >
             {t('webcam.retry')}
           </button>
         )}
@@ -191,9 +230,23 @@ export function WebcamCapture({
   }
 
   return (
-    <div ref={containerRef} className="relative w-full overflow-hidden rounded-lg" style={{ aspectRatio: '4 / 3' }}>
+    <div
+      ref={containerRef}
+      className="relative w-full overflow-hidden rounded-lg"
+      style={{ aspectRatio: '4 / 3' }}
+    >
       {(!active || loading) && (
-        <div className="skeleton" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 16 }}>
+        <div
+          className="skeleton"
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: 16,
+          }}
+        >
           <span style={{ fontSize: 13, color: 'var(--color-text-tertiary)' }}>
             {loading ? t('webcam.starting') : ''}
           </span>

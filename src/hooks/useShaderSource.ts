@@ -11,7 +11,9 @@ export function useShaderSource(sourcePath: string): string | null {
     loadSource(sourcePath).then((s) => {
       if (!cancelled) setSource(s);
     });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [sourcePath]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return source;

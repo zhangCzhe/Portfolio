@@ -50,10 +50,14 @@ export class WebGLRenderer {
 
     if (!this.started) {
       const raw = (this.canvas.getContext('webgl2', {
-        alpha: true, antialias: false, powerPreference: 'high-performance',
-      }) || this.canvas.getContext('webgl', {
-        alpha: true, antialias: false,
-      })) as WebGL2RenderingContext | null;
+        alpha: true,
+        antialias: false,
+        powerPreference: 'high-performance',
+      }) ||
+        this.canvas.getContext('webgl', {
+          alpha: true,
+          antialias: false,
+        })) as WebGL2RenderingContext | null;
 
       if (!raw) {
         this.onError('WebGL not supported');
@@ -119,7 +123,11 @@ export class WebGLRenderer {
     // Force GPU resource release
     const ext = this.gl?.getExtension('WEBGL_lose_context');
     if (ext) {
-      try { ext.loseContext(); } catch { /* ignore */ }
+      try {
+        ext.loseContext();
+      } catch {
+        /* ignore */
+      }
     }
     this.gl = null;
   }
@@ -214,7 +222,12 @@ export class WebGLRenderer {
           }
           break;
         case 'u_texture':
-          if (this.useTexture && this.texture && this.videoElement && this.videoElement.readyState >= this.videoElement.HAVE_CURRENT_DATA) {
+          if (
+            this.useTexture &&
+            this.texture &&
+            this.videoElement &&
+            this.videoElement.readyState >= this.videoElement.HAVE_CURRENT_DATA
+          ) {
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, this.texture);
             gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);
@@ -248,9 +261,21 @@ export class WebGLRenderer {
 
   private onContextRestored = (): void => {
     const gl = this.gl!;
-    try { if (this.program) gl.deleteProgram(this.program); } catch { /* ignore */ }
-    try { if (this.buffer) gl.deleteBuffer(this.buffer); } catch { /* ignore */ }
-    try { if (this.texture) gl.deleteTexture(this.texture); } catch { /* ignore */ }
+    try {
+      if (this.program) gl.deleteProgram(this.program);
+    } catch {
+      /* ignore */
+    }
+    try {
+      if (this.buffer) gl.deleteBuffer(this.buffer);
+    } catch {
+      /* ignore */
+    }
+    try {
+      if (this.texture) gl.deleteTexture(this.texture);
+    } catch {
+      /* ignore */
+    }
 
     this.compile();
     this.setupGeometry();
@@ -263,9 +288,21 @@ export class WebGLRenderer {
   private releaseGL(): void {
     const gl = this.gl;
     if (!gl) return;
-    try { if (this.program) gl.deleteProgram(this.program); } catch { /* ignore */ }
-    try { if (this.buffer) gl.deleteBuffer(this.buffer); } catch { /* ignore */ }
-    try { if (this.texture) gl.deleteTexture(this.texture); } catch { /* ignore */ }
+    try {
+      if (this.program) gl.deleteProgram(this.program);
+    } catch {
+      /* ignore */
+    }
+    try {
+      if (this.buffer) gl.deleteBuffer(this.buffer);
+    } catch {
+      /* ignore */
+    }
+    try {
+      if (this.texture) gl.deleteTexture(this.texture);
+    } catch {
+      /* ignore */
+    }
     this.program = null;
     this.buffer = null;
     this.texture = null;

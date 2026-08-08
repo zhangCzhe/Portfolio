@@ -1,4 +1,8 @@
-export function createShader(gl: WebGL2RenderingContext | WebGLRenderingContext, type: number, source: string): WebGLShader {
+export function createShader(
+  gl: WebGL2RenderingContext | WebGLRenderingContext,
+  type: number,
+  source: string,
+): WebGLShader {
   const shader = gl.createShader(type)!;
   gl.shaderSource(shader, source);
   gl.compileShader(shader);
@@ -46,14 +50,12 @@ void main() {
   gl_Position = vec4(a_position, 0.0, 1.0);
 }`;
 
-export function createFullscreenQuad(gl: WebGL2RenderingContext | WebGLRenderingContext): WebGLBuffer {
-  const vertices = new Float32Array([
-    -1, -1,  -1, 1,  1, -1,
-     1,  1,  -1, 1,  1, -1,
-  ]);
+export function createFullscreenQuad(
+  gl: WebGL2RenderingContext | WebGLRenderingContext,
+): WebGLBuffer {
+  const vertices = new Float32Array([-1, -1, -1, 1, 1, -1, 1, 1, -1, 1, 1, -1]);
   const buffer = gl.createBuffer()!;
   gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
   gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
   return buffer;
 }
-
