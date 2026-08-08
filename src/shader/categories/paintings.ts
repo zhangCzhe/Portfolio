@@ -8,7 +8,6 @@ const paintings: ShaderCategory = {
   description:
     'Iconic masterpieces reinterpreted as procedural shaders — Impressionism, geometric abstraction, and modern art.',
   descriptionZh: '用程序化着色器重新诠释经典名画——印象派、几何抽象与现代艺术。',
-  tone: 'light',
   cardType: 'shader',
   series: [
     {

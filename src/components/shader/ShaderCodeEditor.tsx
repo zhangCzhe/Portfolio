@@ -22,10 +22,18 @@ interface ShaderCodeEditorProps {
   onChange: (newCode: string) => void;
   onReset: () => void;
   error: string | null;
+  /** 展厅模式：直接展开且隐藏 查看/收起 切换 */
+  alwaysOpen?: boolean;
 }
 
-export function ShaderCodeEditor({ code, onChange, onReset, error }: ShaderCodeEditorProps) {
-  const [open, setOpen] = useState(false);
+export function ShaderCodeEditor({
+  code,
+  onChange,
+  onReset,
+  error,
+  alwaysOpen = false,
+}: ShaderCodeEditorProps) {
+  const [open, setOpen] = useState(alwaysOpen);
   const containerRef = useRef<HTMLDivElement>(null);
   const viewRef = useRef<EditorView | null>(null);
   const { t } = useTranslation();
@@ -45,6 +53,8 @@ export function ShaderCodeEditor({ code, onChange, onReset, error }: ShaderCodeE
   );
 
   const handleReset = useCallback(() => {
+    // 先取消仍挂起的防抖 onChange，避免重置后被写回旧代码（reset 必须赢）
+    clearTimeout(debounceRef.current);
     setDirty(false);
     onReset();
   }, [onReset]);
@@ -128,21 +138,23 @@ export function ShaderCodeEditor({ code, onChange, onReset, error }: ShaderCodeE
   return (
     <div style={{ marginTop: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <button
-          onClick={toggleOpen}
-          aria-expanded={open}
-          style={{
-            fontSize: 13,
-            fontWeight: 500,
-            color: 'var(--color-accent)',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: 0,
-          }}
-        >
-          {open ? t('common.hideCode') : t('common.viewCode')}
-        </button>
+        {!alwaysOpen && (
+          <button
+            onClick={toggleOpen}
+            aria-expanded={open}
+            style={{
+              fontSize: 13,
+              fontWeight: 500,
+              color: 'var(--color-accent)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+            }}
+          >
+            {open ? t('common.hideCode') : t('common.viewCode')}
+          </button>
+        )}
         {dirty && (
           <button
             onClick={handleReset}
@@ -254,14 +266,7 @@ export function ShaderCodeEditor({ code, onChange, onReset, error }: ShaderCodeE
                 </>
               )}
             </button>
-            <div
-              ref={containerRef}
-              style={{
-                borderRadius: 12,
-                overflow: 'hidden',
-                border: '1px solid var(--color-border)',
-              }}
-            />
+            <div ref={containerRef} className="editor-shell" />
           </div>
         </div>
       </div>

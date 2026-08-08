@@ -8,7 +8,6 @@ const filters: ShaderCategory = {
   description:
     'Real-time webcam filters — from classic monochrome to edge detection, halftone, glitch, and kaleidoscope.',
   descriptionZh: '实时摄像头滤镜——从经典黑白到边缘检测、半色调、故障艺术和万花筒。',
-  tone: 'light',
   cardType: 'filter',
   series: [
     {

@@ -10,10 +10,24 @@ i18n
       zh: {
         translation: {
           entry: {
-            title: '着色器作品集',
             subtitle: '探索 Fragment Shader 的无限可能',
             enter: '进入探索',
             hint: '点击或滚动进入',
+          },
+          museum: {
+            name: 'Shader 美术馆',
+            hall: {
+              basics: '第一展厅',
+              paintings: '第二展厅',
+              effects: '第三展厅',
+              filters: '第四展厅',
+            },
+          },
+          artwork: {
+            medium: 'Fragment Shader',
+          },
+          focus: {
+            close: '关闭',
           },
           nav: {
             basics: 'Shader 基础',
@@ -57,10 +71,24 @@ i18n
       en: {
         translation: {
           entry: {
-            title: 'Shader Portfolio',
             subtitle: 'Exploring the Infinite Possibilities of Fragment Shaders',
             enter: 'Enter',
             hint: 'Click or scroll to enter',
+          },
+          museum: {
+            name: 'Shader Museum',
+            hall: {
+              basics: 'Gallery I',
+              paintings: 'Gallery II',
+              effects: 'Gallery III',
+              filters: 'Gallery IV',
+            },
+          },
+          artwork: {
+            medium: 'Fragment Shader',
+          },
+          focus: {
+            close: 'Close',
           },
           nav: {
             basics: 'Shader Basics',

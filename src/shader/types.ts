@@ -44,7 +44,6 @@ export interface ShaderCategory {
   titleZh: string;
   description: string;
   descriptionZh: string;
-  tone: 'dark' | 'light';
   cardType: 'shader' | 'filter';
   series: ShaderSeries[];
 }

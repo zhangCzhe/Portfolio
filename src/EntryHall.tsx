@@ -3,13 +3,13 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { ShaderBackground } from './components/shader/ShaderBackground';
 import { isWebGLSupported } from './engine/support';
-import nebulaShader from './shaders/background/nebula.glsl?raw';
+import nebulaLightShader from './shaders/background/nebula-light.glsl?raw';
 
-interface EntryPageProps {
+interface EntryHallProps {
   onEnter: () => void;
 }
 
-export default function EntryPage({ onEnter }: EntryPageProps) {
+export default function EntryHall({ onEnter }: EntryHallProps) {
   const { t } = useTranslation();
   const [webglOk, setWebglOk] = useState(true);
   const shouldReduceMotion = useReducedMotion();
@@ -18,7 +18,7 @@ export default function EntryPage({ onEnter }: EntryPageProps) {
     if (!isWebGLSupported()) setWebglOk(false);
   }, []);
 
-  // Scroll/touch/keyboard to enter
+  // 点击 / 滚动 / 触摸 / 键盘进入
   useEffect(() => {
     const onWheel = (e: WheelEvent) => {
       if (e.deltaY > 30) onEnter();
@@ -45,79 +45,52 @@ export default function EntryPage({ onEnter }: EntryPageProps) {
   const tr = shouldReduceMotion ? { duration: 0 } : { duration: 0.6, ease };
 
   return (
-    <div className="entry-page">
+    <div className="entry-hall">
       {webglOk ? (
-        <ShaderBackground fragmentShader={nebulaShader} />
+        <ShaderBackground fragmentShader={nebulaLightShader} />
       ) : (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 0,
-            background: '#000',
-          }}
-        />
+        <div className="entry-hall__nogl-bg" />
       )}
 
-      {/* Subtle top gradient for depth */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          zIndex: 1,
-          background:
-            'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 40%, rgba(0,0,0,0.5) 100%)',
-        }}
-      />
+      {/* 纸白渐变罩，保证文字可读性 */}
+      <div className="entry-hall__veil" />
 
-      {/* Content — bottom-left aligned, Apple style */}
-      <div className="entry-content">
-        <motion.h1
-          {...animProps}
-          transition={{ ...tr, delay: shouldReduceMotion ? 0 : 0.15 }}
-          className="entry-title"
-        >
-          {t('entry.title')}
-        </motion.h1>
-
+      <div className="entry-hall__content">
         <motion.p
           {...animProps}
-          transition={{ ...tr, delay: shouldReduceMotion ? 0 : 0.25 }}
-          className="entry-subtitle"
+          transition={{ ...tr, delay: shouldReduceMotion ? 0 : 0.1 }}
+          className="entry-hall__kicker"
         >
           {t('entry.subtitle')}
         </motion.p>
 
-        {/* Scroll indicator */}
+        <motion.h1
+          {...animProps}
+          transition={{ ...tr, delay: shouldReduceMotion ? 0 : 0.2 }}
+          className="entry-hall__title"
+        >
+          {t('museum.name')}
+        </motion.h1>
+
+        {!webglOk && <p className="entry-hall__nogl-note">{t('webgl.unsupported')}</p>}
+
         <motion.div
-          className="entry-scroll-hint"
+          className="entry-hall__hint"
           initial={shouldReduceMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.0, duration: 0.5 }}
         >
-          <div className="entry-scroll-line" />
+          <span className="entry-hall__hint-line" />
           <span>{t('entry.hint')}</span>
         </motion.div>
 
-        {/* Click to enter button */}
         <motion.button
+          type="button"
           onClick={onEnter}
-          style={{
-            marginTop: 32,
-            padding: '12px 32px',
-            fontSize: 15,
-            fontWeight: 500,
-            color: '#fff',
-            background: 'rgba(255,255,255,0.12)',
-            border: '1px solid rgba(255,255,255,0.2)',
-            borderRadius: 9999,
-            cursor: 'pointer',
-            backdropFilter: 'blur(10px)',
-          }}
+          className="entry-hall__enter"
           initial={shouldReduceMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2, duration: 0.4 }}
-          whileHover={shouldReduceMotion ? {} : { background: 'rgba(255,255,255,0.2)' }}
           whileTap={shouldReduceMotion ? {} : { scale: 0.96 }}
         >
           {t('entry.enter')}

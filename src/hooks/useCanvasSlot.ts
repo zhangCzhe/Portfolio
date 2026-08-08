@@ -2,8 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { CanvasPool } from '../engine/CanvasPool';
 import type { CanvasSlot, CanvasTicket } from '../engine/CanvasPool';
 
-/** 卡片 canvas 的 context 预算（背景 canvas 独立占用第 6 个） */
-export const cardCanvasPool = new CanvasPool(5);
+/** 卡片 canvas 的 context 预算（默认池；背景与展厅模式各自独立预算） */
+export const cardCanvasPool = new CanvasPool(8);
+
+/** 展厅模式 canvas 独立预算：不占用卡片池，关闭即释放 */
+export const focusCanvasPool = new CanvasPool(1);
 
 export function useCanvasSlot(active: boolean, pool: CanvasPool = cardCanvasPool): boolean {
   const [granted, setGranted] = useState(false);
