@@ -20,16 +20,17 @@ export function FramedArtwork({ demo, variant, onFocus }: FramedArtworkProps) {
   const lang = i18n.language.startsWith('zh') ? 'zh' : 'en';
   const originalSource = useShaderSource(demo.source);
 
-  const initialValues: Record<string, number> = {};
+  const initialValues: Record<string, ShaderParamValue> = {};
   for (const p of demo.params) {
-    initialValues[p.name] = p.default ?? 0;
+    initialValues[p.name] =
+      p.type === 'color' ? (p.defaultColor ?? [0.5, 0.5, 0.5]) : (p.default ?? 0);
   }
 
   const [values, setValues] = useState<Record<string, ShaderParamValue>>(initialValues);
   const [activePreset, setActivePreset] = useState<string | null>(null);
   const [retryKey, setRetryKey] = useState(0);
 
-  const handleParamChange = useCallback((name: string, value: number) => {
+  const handleParamChange = useCallback((name: string, value: ShaderParamValue) => {
     setActivePreset(null);
     setValues((prev) => ({ ...prev, [name]: value }));
   }, []);

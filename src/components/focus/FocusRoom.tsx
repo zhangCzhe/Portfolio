@@ -64,9 +64,10 @@ export function FocusRoom({ demo, kicker, variant, onClose }: FocusRoomProps) {
   const shouldReduceMotion = useReducedMotion();
   const originalSource = useShaderSource(demo.source);
 
-  const initialValues: Record<string, number> = {};
+  const initialValues: Record<string, ShaderParamValue> = {};
   for (const p of demo.params) {
-    initialValues[p.name] = p.default ?? 0;
+    initialValues[p.name] =
+      p.type === 'color' ? (p.defaultColor ?? [0.5, 0.5, 0.5]) : (p.default ?? 0);
   }
 
   // 展厅内参数/代码状态完全独立：关闭即销毁，不回写卡片（spec §4）
@@ -92,7 +93,7 @@ export function FocusRoom({ demo, kicker, variant, onClose }: FocusRoomProps) {
     };
   }, [onClose]);
 
-  const handleParamChange = useCallback((name: string, value: number) => {
+  const handleParamChange = useCallback((name: string, value: ShaderParamValue) => {
     setActivePreset(null);
     setValues((prev) => ({ ...prev, [name]: value }));
   }, []);

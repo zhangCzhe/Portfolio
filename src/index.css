@@ -674,6 +674,72 @@ input[type='range']::-moz-range-thumb {
 }
 
 /* ================================================================
+   Color Swatch — 取色器微组件
+   ================================================================ */
+
+.color-swatch {
+  position: relative;
+}
+
+.color-swatch__chip {
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.color-swatch__chip:hover {
+  transform: scale(1.15);
+}
+
+.color-swatch__popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 10;
+  padding: 10px 12px;
+  background: var(--color-bg-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 160px;
+}
+
+.color-swatch--room .color-swatch__popover {
+  background: var(--color-room-bg, #1a1a1a);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.color-swatch__channel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.color-swatch__channel span {
+  width: 14px;
+  text-align: right;
+}
+
+.color-swatch__channel input {
+  flex: 1;
+  height: 4px;
+}
+
+.color-swatch__preview {
+  height: 18px;
+  border-radius: var(--radius-sm);
+  margin-top: 2px;
+}
+
+/* ================================================================
    Shader Code Editor
    ================================================================ */
 
