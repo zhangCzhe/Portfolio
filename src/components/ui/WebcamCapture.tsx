@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useShaderCanvas } from '../../hooks/useShaderCanvas';
+import type { CanvasPool } from '../../engine/CanvasPool';
 import type { UniformSchema } from '../../engine/types';
 
 interface WebcamCaptureProps {
   fragmentShader: string;
   uniforms?: UniformSchema;
   className?: string;
+  /** 展厅模式或特殊场景传入独立池；缺省走卡片池 */
+  pool?: CanvasPool;
   /** 由父级负责重试：父级通过改变 key 整体重建本组件，
    *  使 useShaderCanvas 的 IntersectionObserver 重新绑定到新容器 */
   onRetry: () => void;
@@ -27,6 +30,7 @@ export function WebcamCapture({
   fragmentShader,
   uniforms,
   className = '',
+  pool,
   onRetry,
 }: WebcamCaptureProps) {
   const { t } = useTranslation();
@@ -41,6 +45,7 @@ export function WebcamCapture({
     fragmentShader,
     uniforms,
     canvasClassName: className,
+    pool,
     onCompileError: (msg) => {
       if (msg) {
         setError('shader');

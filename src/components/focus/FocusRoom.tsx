@@ -137,6 +137,7 @@ export function FocusRoom({ demo, kicker, variant, onClose }: FocusRoomProps) {
                 fragmentShader={activeSource}
                 uniforms={values}
                 className="focus-room__glcanvas"
+                pool={focusCanvasPool}
                 onRetry={handleWebcamRetry}
               />
             ) : (

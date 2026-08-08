@@ -6,6 +6,7 @@ import { CanvasErrorBoundary } from '../ui/CanvasErrorBoundary';
 import { WebcamCapture } from '../ui/WebcamCapture';
 import { ShaderControls } from './ShaderControls';
 import { useShaderSource } from '../../hooks/useShaderSource';
+import { cardCanvasPool } from '../../hooks/useCanvasSlot';
 import type { ShaderDemo, ShaderPreset } from '../../shader/types';
 
 interface FramedArtworkProps {
@@ -89,6 +90,7 @@ export function FramedArtwork({ demo, variant, onFocus }: FramedArtworkProps) {
                 fragmentShader={originalSource}
                 uniforms={values}
                 className="w-full"
+                pool={cardCanvasPool}
                 onRetry={handleWebcamRetry}
               />
             ) : (
