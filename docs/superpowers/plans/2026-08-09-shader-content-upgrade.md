@@ -24,11 +24,13 @@
 ### Task 1: 参数系统类型扩展 + GLRenderer 对接
 
 **Files:**
+
 - Modify: `src/shader/types.ts` — `ShaderParam` 加 `type`、`defaultColor`；`ShaderPreset.values` 扩展
 - Modify: `src/engine/types.ts` — `UniformSchema` 扩展
 - Create: `tests/unit/colorParams.test.ts` — 验证类型分发
 
 **Interfaces:**
+
 - Consumes: 现有 `ShaderParam`, `ShaderPreset`, `UniformSchema`
 - Produces: `ShaderParam.type: 'float' | 'color'`, `defaultColor?: [number, number, number]`, `ShaderPreset.values: Record<string, number | [number, number, number]>`, `UniformSchema` 允许 `[number, number, number]` 值
 
@@ -158,12 +160,14 @@ git commit -m "feat: add color param type + extend UniformSchema for vec3 values
 ### Task 2: ColorSwatch 组件 + ShaderControls 集成
 
 **Files:**
+
 - Create: `src/components/shader/ColorSwatch.tsx` — 取色器微组件
 - Modify: `src/components/shader/ShaderControls.tsx` — 根据 `param.type` 渲染 ColorSwatch，扩展 `onParamChange` 签名
 - Create: `tests/unit/ColorSwatch.test.tsx`
 - Modify: `src/index.css` — ColorSwatch + ShaderControls params 区样式追加
 
 **Interfaces:**
+
 - Consumes: Task 1 `ShaderParam.type`, `ShaderParam.defaultColor`, `UniformValue`
 - Produces: `ColorSwatch` 组件 props `{ value: [number,number,number]; onChange: (color: [number,number,number]) => void; variant: 'gallery' | 'room' }`；ShaderControls 新增 `onParamChange` 支持 `(name: string, value: number | [number,number,number]) => void`
 
@@ -214,6 +218,7 @@ describe('ColorSwatch', () => {
 ```bash
 npx vitest run tests/unit/ColorSwatch.test.tsx
 ```
+
 Expected: FAIL — ColorSwatch module not found
 
 - [ ] **Step 3: 实现 ColorSwatch**
@@ -270,10 +275,7 @@ export function ColorSwatch({ value, onChange, variant }: ColorSwatchProps) {
               />
             </label>
           ))}
-          <div
-            className="color-swatch__preview"
-            style={{ backgroundColor: toCss(value) }}
-          />
+          <div className="color-swatch__preview" style={{ backgroundColor: toCss(value) }} />
         </div>
       )}
     </div>
@@ -301,44 +303,48 @@ interface ShaderControlsProps {
 }
 
 // params 渲染区改为:
-{params.length > 0 && (
-  <div>
-    <span className="shader-controls__heading">{t('common.params')}</span>
-    <div className="shader-controls__sliders">
-      {params.map((param) => {
-        const isColor = param.type === 'color';
-        const pName = param.name;
-        const pValue = values[pName] ?? (isColor ? param.defaultColor ?? [0.5, 0.5, 0.5] : param.default ?? 0);
-        return (
-          <div key={pName} className="shader-controls__row">
-            <span className="shader-controls__name">{label(param)}</span>
-            {isColor ? (
-              <ColorSwatch
-                value={pValue as [number, number, number]}
-                onChange={(color) => onParamChange(pName, color)}
-                variant={variant}
-              />
-            ) : (
-              <>
-                <input
-                  type="range"
-                  min={param.min}
-                  max={param.max}
-                  step={param.step}
-                  value={pValue as number}
-                  onChange={(e) => onParamChange(pName, parseFloat(e.target.value))}
+{
+  params.length > 0 && (
+    <div>
+      <span className="shader-controls__heading">{t('common.params')}</span>
+      <div className="shader-controls__sliders">
+        {params.map((param) => {
+          const isColor = param.type === 'color';
+          const pName = param.name;
+          const pValue =
+            values[pName] ??
+            (isColor ? (param.defaultColor ?? [0.5, 0.5, 0.5]) : (param.default ?? 0));
+          return (
+            <div key={pName} className="shader-controls__row">
+              <span className="shader-controls__name">{label(param)}</span>
+              {isColor ? (
+                <ColorSwatch
+                  value={pValue as [number, number, number]}
+                  onChange={(color) => onParamChange(pName, color)}
+                  variant={variant}
                 />
-                <span className="shader-controls__value">
-                  {(pValue as number).toFixed((param.step ?? 1) < 1 ? 1 : 0)}
-                </span>
-              </>
-            )}
-          </div>
-        );
-      })}
+              ) : (
+                <>
+                  <input
+                    type="range"
+                    min={param.min}
+                    max={param.max}
+                    step={param.step}
+                    value={pValue as number}
+                    onChange={(e) => onParamChange(pName, parseFloat(e.target.value))}
+                  />
+                  <span className="shader-controls__value">
+                    {(pValue as number).toFixed((param.step ?? 1) < 1 ? 1 : 0)}
+                  </span>
+                </>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
-  </div>
-)}
+  );
+}
 ```
 
 - [ ] **Step 5: 追加 CSS**
@@ -376,7 +382,7 @@ interface ShaderControlsProps {
   background: var(--color-bg-primary);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -385,7 +391,7 @@ interface ShaderControlsProps {
 
 .color-swatch--room .color-swatch__popover {
   background: var(--color-room-bg, #1a1a1a);
-  border-color: rgba(255,255,255,0.12);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .color-swatch__channel {
@@ -429,10 +435,12 @@ git commit -m "feat: ColorSwatch component + ShaderControls color param support"
 ### Task 3: basics 展厅重组（21→8，补参数）
 
 **Files:**
+
 - Modify: `src/shader/categories/basics.ts` — 删除 13 个 demo，保留 8 个并补齐参数/预设
 - Modify: `src/index.css` — （如保留的 shader 需要新 CSS 规则则追加，通常不需要）
 
 **Interfaces:**
+
 - Consumes: Task 1 `ShaderParam.type: 'color'`, Task 2 ColorSwatch
 - Produces: 8 个精选 demo，每个 ≥1 参数 + ≥3 预设
 
@@ -471,8 +479,24 @@ const basics: ShaderCategory = {
           descriptionZh: '动态环形渐变，可调色盘旋转变换。',
           source: 'basics/colors/02-gradient-ring.glsl',
           params: [
-            { name: 'u_speed', label: 'Speed', labelZh: '速度', min: 0, max: 5, step: 0.1, default: 1.0 },
-            { name: 'u_hue_shift', label: 'Hue Shift', labelZh: '色相偏移', min: 0, max: 1, step: 0.01, default: 0.0 },
+            {
+              name: 'u_speed',
+              label: 'Speed',
+              labelZh: '速度',
+              min: 0,
+              max: 5,
+              step: 0.1,
+              default: 1.0,
+            },
+            {
+              name: 'u_hue_shift',
+              label: 'Hue Shift',
+              labelZh: '色相偏移',
+              min: 0,
+              max: 1,
+              step: 0.01,
+              default: 0.0,
+            },
           ],
           presets: [
             { name: 'slow', nameZh: '慢速', values: { u_speed: 0.3, u_hue_shift: 0.0 } },
@@ -484,18 +508,55 @@ const basics: ShaderCategory = {
           id: 'mix-smoothstep',
           title: 'mix() vs smoothstep()',
           titleZh: 'mix 与 smoothstep 对比',
-          description: 'Side-by-side comparison of linear mix and smooth Hermite interpolation with edge coloring.',
+          description:
+            'Side-by-side comparison of linear mix and smooth Hermite interpolation with edge coloring.',
           descriptionZh: '线性 mix 与 smoothstep 的直观对比，可调边缘着色。',
           source: 'basics/colors/03-mix-smoothstep.glsl',
           params: [
-            { name: 'u_transition', label: 'Transition', labelZh: '过渡位置', min: 0, max: 1, step: 0.01, default: 0.5 },
-            { name: 'u_color_a', label: 'Color A', labelZh: '颜色A', type: 'color', defaultColor: [0.05, 0.08, 0.25] },
-            { name: 'u_color_b', label: 'Color B', labelZh: '颜色B', type: 'color', defaultColor: [0.9, 0.5, 0.3] },
+            {
+              name: 'u_transition',
+              label: 'Transition',
+              labelZh: '过渡位置',
+              min: 0,
+              max: 1,
+              step: 0.01,
+              default: 0.5,
+            },
+            {
+              name: 'u_color_a',
+              label: 'Color A',
+              labelZh: '颜色A',
+              type: 'color',
+              defaultColor: [0.05, 0.08, 0.25],
+            },
+            {
+              name: 'u_color_b',
+              label: 'Color B',
+              labelZh: '颜色B',
+              type: 'color',
+              defaultColor: [0.9, 0.5, 0.3],
+            },
           ],
           presets: [
-            { name: 'default', nameZh: '默认', values: { u_transition: 0.5, u_color_a: [0.05, 0.08, 0.25], u_color_b: [0.9, 0.5, 0.3] } },
-            { name: 'sunset', nameZh: '日落', values: { u_transition: 0.6, u_color_a: [0.1, 0.0, 0.2], u_color_b: [1.0, 0.4, 0.0] } },
-            { name: 'ocean', nameZh: '海洋', values: { u_transition: 0.4, u_color_a: [0.0, 0.2, 0.3], u_color_b: [0.2, 0.7, 0.8] } },
+            {
+              name: 'default',
+              nameZh: '默认',
+              values: {
+                u_transition: 0.5,
+                u_color_a: [0.05, 0.08, 0.25],
+                u_color_b: [0.9, 0.5, 0.3],
+              },
+            },
+            {
+              name: 'sunset',
+              nameZh: '日落',
+              values: { u_transition: 0.6, u_color_a: [0.1, 0.0, 0.2], u_color_b: [1.0, 0.4, 0.0] },
+            },
+            {
+              name: 'ocean',
+              nameZh: '海洋',
+              values: { u_transition: 0.4, u_color_a: [0.0, 0.2, 0.3], u_color_b: [0.2, 0.7, 0.8] },
+            },
           ],
         },
       ],
@@ -511,12 +572,29 @@ const basics: ShaderCategory = {
           id: 'polar-flower',
           title: 'Polar Flower',
           titleZh: '极坐标之花',
-          description: 'Beautiful polar-coordinate patterns with adjustable petal count and radius.',
+          description:
+            'Beautiful polar-coordinate patterns with adjustable petal count and radius.',
           descriptionZh: '极坐标生成的美丽花纹图案，可调花瓣数和半径。',
           source: 'basics/coordinates/01-polar-flower.glsl',
           params: [
-            { name: 'u_petals', label: 'Petals', labelZh: '花瓣数', min: 2, max: 16, step: 1, default: 6 },
-            { name: 'u_radius', label: 'Radius', labelZh: '半径', min: 0.3, max: 1.5, step: 0.05, default: 1.0 },
+            {
+              name: 'u_petals',
+              label: 'Petals',
+              labelZh: '花瓣数',
+              min: 2,
+              max: 16,
+              step: 1,
+              default: 6,
+            },
+            {
+              name: 'u_radius',
+              label: 'Radius',
+              labelZh: '半径',
+              min: 0.3,
+              max: 1.5,
+              step: 0.05,
+              default: 1.0,
+            },
           ],
           presets: [
             { name: 'rose', nameZh: '玫瑰', values: { u_petals: 5, u_radius: 1.0 } },
@@ -541,14 +619,50 @@ const basics: ShaderCategory = {
           descriptionZh: '标志性分形，平滑着色与实时缩放。',
           source: 'basics/fractals/01-mandelbrot.glsl',
           params: [
-            { name: 'u_zoom', label: 'Zoom', labelZh: '缩放', min: 0.3, max: 4, step: 0.05, default: 1.2 },
-            { name: 'u_iterations', label: 'Iterations', labelZh: '迭代次数', min: 20, max: 150, step: 1, default: 60 },
-            { name: 'u_color_theme', label: 'Theme', labelZh: '配色主题', min: 0, max: 3, step: 1, default: 0 },
+            {
+              name: 'u_zoom',
+              label: 'Zoom',
+              labelZh: '缩放',
+              min: 0.3,
+              max: 4,
+              step: 0.05,
+              default: 1.2,
+            },
+            {
+              name: 'u_iterations',
+              label: 'Iterations',
+              labelZh: '迭代次数',
+              min: 20,
+              max: 150,
+              step: 1,
+              default: 60,
+            },
+            {
+              name: 'u_color_theme',
+              label: 'Theme',
+              labelZh: '配色主题',
+              min: 0,
+              max: 3,
+              step: 1,
+              default: 0,
+            },
           ],
           presets: [
-            { name: 'classic', nameZh: '经典', values: { u_zoom: 1.2, u_iterations: 60, u_color_theme: 0 } },
-            { name: 'deep', nameZh: '深探', values: { u_zoom: 3.2, u_iterations: 120, u_color_theme: 1 } },
-            { name: 'neon', nameZh: '霓虹', values: { u_zoom: 2.0, u_iterations: 80, u_color_theme: 2 } },
+            {
+              name: 'classic',
+              nameZh: '经典',
+              values: { u_zoom: 1.2, u_iterations: 60, u_color_theme: 0 },
+            },
+            {
+              name: 'deep',
+              nameZh: '深探',
+              values: { u_zoom: 3.2, u_iterations: 120, u_color_theme: 1 },
+            },
+            {
+              name: 'neon',
+              nameZh: '霓虹',
+              values: { u_zoom: 2.0, u_iterations: 80, u_color_theme: 2 },
+            },
           ],
         },
         {
@@ -559,14 +673,50 @@ const basics: ShaderCategory = {
           descriptionZh: '动画 Julia 集合，参数控制实常数 C。',
           source: 'basics/fractals/02-julia.glsl',
           params: [
-            { name: 'u_c_real', label: 'C Real', labelZh: 'C 实部', min: -1, max: 1, step: 0.01, default: -0.7 },
-            { name: 'u_c_imag', label: 'C Imag', labelZh: 'C 虚部', min: -1, max: 1, step: 0.01, default: 0.27 },
-            { name: 'u_zoom', label: 'Zoom', labelZh: '缩放', min: 0.5, max: 3, step: 0.05, default: 1.5 },
+            {
+              name: 'u_c_real',
+              label: 'C Real',
+              labelZh: 'C 实部',
+              min: -1,
+              max: 1,
+              step: 0.01,
+              default: -0.7,
+            },
+            {
+              name: 'u_c_imag',
+              label: 'C Imag',
+              labelZh: 'C 虚部',
+              min: -1,
+              max: 1,
+              step: 0.01,
+              default: 0.27,
+            },
+            {
+              name: 'u_zoom',
+              label: 'Zoom',
+              labelZh: '缩放',
+              min: 0.5,
+              max: 3,
+              step: 0.05,
+              default: 1.5,
+            },
           ],
           presets: [
-            { name: 'seahorse', nameZh: '海马', values: { u_c_real: -0.75, u_c_imag: 0.11, u_zoom: 1.8 } },
-            { name: 'spiral', nameZh: '螺旋', values: { u_c_real: -0.7, u_c_imag: 0.27, u_zoom: 1.5 } },
-            { name: 'dendrite', nameZh: '树突', values: { u_c_real: 0.28, u_c_imag: 0.008, u_zoom: 2.0 } },
+            {
+              name: 'seahorse',
+              nameZh: '海马',
+              values: { u_c_real: -0.75, u_c_imag: 0.11, u_zoom: 1.8 },
+            },
+            {
+              name: 'spiral',
+              nameZh: '螺旋',
+              values: { u_c_real: -0.7, u_c_imag: 0.27, u_zoom: 1.5 },
+            },
+            {
+              name: 'dendrite',
+              nameZh: '树突',
+              values: { u_c_real: 0.28, u_c_imag: 0.008, u_zoom: 2.0 },
+            },
           ],
         },
       ],
@@ -582,12 +732,29 @@ const basics: ShaderCategory = {
           id: 'water-droplet',
           title: 'Water Droplet',
           titleZh: '水滴折射',
-          description: 'Realistic water droplet with refraction, caustics, and adjustable drop size.',
+          description:
+            'Realistic water droplet with refraction, caustics, and adjustable drop size.',
           descriptionZh: '逼真水滴折射与焦散效果，可调水滴大小。',
           source: 'basics/lighting/03-water-droplet.glsl',
           params: [
-            { name: 'u_refraction', label: 'Refraction', labelZh: '折射率', min: 0.5, max: 2.0, step: 0.05, default: 1.33 },
-            { name: 'u_drop_size', label: 'Drop Size', labelZh: '水滴大小', min: 0.1, max: 0.6, step: 0.02, default: 0.25 },
+            {
+              name: 'u_refraction',
+              label: 'Refraction',
+              labelZh: '折射率',
+              min: 0.5,
+              max: 2.0,
+              step: 0.05,
+              default: 1.33,
+            },
+            {
+              name: 'u_drop_size',
+              label: 'Drop Size',
+              labelZh: '水滴大小',
+              min: 0.1,
+              max: 0.6,
+              step: 0.02,
+              default: 0.25,
+            },
           ],
           presets: [
             { name: 'water', nameZh: '水', values: { u_refraction: 1.33, u_drop_size: 0.25 } },
@@ -608,18 +775,51 @@ const basics: ShaderCategory = {
           id: 'domain-warp',
           title: 'Domain Warp',
           titleZh: '域扭曲',
-          description: 'Fractal Brownian motion with multi-layer domain warping producing organic, marble-like textures.',
+          description:
+            'Fractal Brownian motion with multi-layer domain warping producing organic, marble-like textures.',
           descriptionZh: '多层域扭曲的分形布朗运动，产生有机大理石的纹理效果。',
           source: 'basics/noise/03-domain-warp.glsl',
           params: [
-            { name: 'u_warp', label: 'Warp', labelZh: '扭曲强度', min: 0.2, max: 5, step: 0.1, default: 2.0 },
-            { name: 'u_color1', label: 'Color 1', labelZh: '颜色1', type: 'color', defaultColor: [0.05, 0.08, 0.25] },
-            { name: 'u_color2', label: 'Color 2', labelZh: '颜色2', type: 'color', defaultColor: [0.1, 0.4, 0.7] },
+            {
+              name: 'u_warp',
+              label: 'Warp',
+              labelZh: '扭曲强度',
+              min: 0.2,
+              max: 5,
+              step: 0.1,
+              default: 2.0,
+            },
+            {
+              name: 'u_color1',
+              label: 'Color 1',
+              labelZh: '颜色1',
+              type: 'color',
+              defaultColor: [0.05, 0.08, 0.25],
+            },
+            {
+              name: 'u_color2',
+              label: 'Color 2',
+              labelZh: '颜色2',
+              type: 'color',
+              defaultColor: [0.1, 0.4, 0.7],
+            },
           ],
           presets: [
-            { name: 'nebula', nameZh: '星云', values: { u_warp: 2.0, u_color1: [0.05, 0.08, 0.25], u_color2: [0.1, 0.4, 0.7] } },
-            { name: 'marble', nameZh: '大理石', values: { u_warp: 1.5, u_color1: [0.9, 0.85, 0.8], u_color2: [0.4, 0.35, 0.3] } },
-            { name: 'lava', nameZh: '熔岩', values: { u_warp: 3.0, u_color1: [0.8, 0.2, 0.0], u_color2: [1.0, 0.7, 0.0] } },
+            {
+              name: 'nebula',
+              nameZh: '星云',
+              values: { u_warp: 2.0, u_color1: [0.05, 0.08, 0.25], u_color2: [0.1, 0.4, 0.7] },
+            },
+            {
+              name: 'marble',
+              nameZh: '大理石',
+              values: { u_warp: 1.5, u_color1: [0.9, 0.85, 0.8], u_color2: [0.4, 0.35, 0.3] },
+            },
+            {
+              name: 'lava',
+              nameZh: '熔岩',
+              values: { u_warp: 3.0, u_color1: [0.8, 0.2, 0.0], u_color2: [1.0, 0.7, 0.0] },
+            },
           ],
         },
       ],
@@ -639,14 +839,48 @@ const basics: ShaderCategory = {
           descriptionZh: '旋转的六边形环，平滑混合与颜色循环。',
           source: 'basics/shapes/03-hexagon-ring.glsl',
           params: [
-            { name: 'u_ring_count', label: 'Ring Count', labelZh: '环数', min: 3, max: 12, step: 1, default: 6 },
-            { name: 'u_rotation_speed', label: 'Rotation', labelZh: '旋转速度', min: 0, max: 3, step: 0.1, default: 0.5 },
-            { name: 'u_accent_color', label: 'Accent', labelZh: '强调色', type: 'color', defaultColor: [0.8, 0.5, 0.9] },
+            {
+              name: 'u_ring_count',
+              label: 'Ring Count',
+              labelZh: '环数',
+              min: 3,
+              max: 12,
+              step: 1,
+              default: 6,
+            },
+            {
+              name: 'u_rotation_speed',
+              label: 'Rotation',
+              labelZh: '旋转速度',
+              min: 0,
+              max: 3,
+              step: 0.1,
+              default: 0.5,
+            },
+            {
+              name: 'u_accent_color',
+              label: 'Accent',
+              labelZh: '强调色',
+              type: 'color',
+              defaultColor: [0.8, 0.5, 0.9],
+            },
           ],
           presets: [
-            { name: 'honeycomb', nameZh: '蜂巢', values: { u_ring_count: 6, u_rotation_speed: 0.5, u_accent_color: [0.8, 0.5, 0.9] } },
-            { name: 'wheel', nameZh: '轮盘', values: { u_ring_count: 8, u_rotation_speed: 1.2, u_accent_color: [0.2, 0.7, 0.9] } },
-            { name: 'minimal', nameZh: '极简', values: { u_ring_count: 4, u_rotation_speed: 0.3, u_accent_color: [0.9, 0.6, 0.3] } },
+            {
+              name: 'honeycomb',
+              nameZh: '蜂巢',
+              values: { u_ring_count: 6, u_rotation_speed: 0.5, u_accent_color: [0.8, 0.5, 0.9] },
+            },
+            {
+              name: 'wheel',
+              nameZh: '轮盘',
+              values: { u_ring_count: 8, u_rotation_speed: 1.2, u_accent_color: [0.2, 0.7, 0.9] },
+            },
+            {
+              name: 'minimal',
+              nameZh: '极简',
+              values: { u_ring_count: 4, u_rotation_speed: 0.3, u_accent_color: [0.9, 0.6, 0.3] },
+            },
           ],
         },
       ],
@@ -656,6 +890,7 @@ const basics: ShaderCategory = {
 
 registerCategory(basics);
 ```
+
 </details>
 
 - [ ] **Step 2: 更新 gradient-ring shader（补 hue_shift uniform）**
@@ -701,16 +936,19 @@ git commit -m "feat: basics gallery — cull to 8 demos, add params + presets"
 ### Task 4: paintings 展厅升级（现有 8 个交互重做）
 
 **Files:**
+
 - Modify: `src/shader/categories/paintings.ts` — 更新 8 个 demo 的参数定义
 - Modify: 8 个 shader 文件（添加交互逻辑 + 新 uniform）
 
 **Interfaces:**
+
 - Consumes: Task 1 (params with color type), Task 2 (ColorSwatch in ShaderControls)
 - Produces: 8 个 upgraded painting demos with interactive behaviors + ≥3 presets each
 
 - [ ] **Step 1: 更新 paintings.ts 参数定义**
 
 完整替换 `src/shader/categories/paintings.ts`。关键改动：
+
 - starry-night: 加 `u_star_brightness`, `u_color_shift` 参数
 - water-lilies: 加 `u_splash_radius`, `u_petal_color` (color) 参数
 - impression-sunrise: 加 `u_sun_angle`, `u_glow_color` (color) 参数
@@ -741,7 +979,8 @@ const paintings: ShaderCategory = {
       id: 'impressionism',
       title: 'Impressionism',
       titleZh: '印象派系列',
-      description: 'Procedural brushstrokes and dynamic lighting bring Impressionist masterpieces to life.',
+      description:
+        'Procedural brushstrokes and dynamic lighting bring Impressionist masterpieces to life.',
       descriptionZh: '程序化笔触与动态光影，让印象派名作活起来。',
       demos: [
         {
@@ -752,14 +991,50 @@ const paintings: ShaderCategory = {
           descriptionZh: '旋转星空，鼠标划过产生流星拖尾，星星随光标呼吸明灭。',
           source: 'paintings/impressionism/01-starry-night.glsl',
           params: [
-            { name: 'u_turbulence', label: 'Turbulence', labelZh: '湍流强度', min: 0.2, max: 3, step: 0.1, default: 1.5 },
-            { name: 'u_star_brightness', label: 'Stars', labelZh: '星光亮度', min: 0.3, max: 2, step: 0.05, default: 1.0 },
-            { name: 'u_color_shift', label: 'Color Shift', labelZh: '色调偏移', min: 0, max: 1, step: 0.01, default: 0.0 },
+            {
+              name: 'u_turbulence',
+              label: 'Turbulence',
+              labelZh: '湍流强度',
+              min: 0.2,
+              max: 3,
+              step: 0.1,
+              default: 1.5,
+            },
+            {
+              name: 'u_star_brightness',
+              label: 'Stars',
+              labelZh: '星光亮度',
+              min: 0.3,
+              max: 2,
+              step: 0.05,
+              default: 1.0,
+            },
+            {
+              name: 'u_color_shift',
+              label: 'Color Shift',
+              labelZh: '色调偏移',
+              min: 0,
+              max: 1,
+              step: 0.01,
+              default: 0.0,
+            },
           ],
           presets: [
-            { name: 'calm', nameZh: '平静', values: { u_turbulence: 0.5, u_star_brightness: 0.7, u_color_shift: 0.0 } },
-            { name: 'classic', nameZh: '原版', values: { u_turbulence: 1.5, u_star_brightness: 1.0, u_color_shift: 0.15 } },
-            { name: 'storm', nameZh: '风暴', values: { u_turbulence: 2.8, u_star_brightness: 1.8, u_color_shift: 0.3 } },
+            {
+              name: 'calm',
+              nameZh: '平静',
+              values: { u_turbulence: 0.5, u_star_brightness: 0.7, u_color_shift: 0.0 },
+            },
+            {
+              name: 'classic',
+              nameZh: '原版',
+              values: { u_turbulence: 1.5, u_star_brightness: 1.0, u_color_shift: 0.15 },
+            },
+            {
+              name: 'storm',
+              nameZh: '风暴',
+              values: { u_turbulence: 2.8, u_star_brightness: 1.8, u_color_shift: 0.3 },
+            },
           ],
           interactive: true,
         },
@@ -767,18 +1042,53 @@ const paintings: ShaderCategory = {
           id: 'water-lilies',
           title: 'Water Lilies — Monet',
           titleZh: '睡莲 — 莫奈',
-          description: 'Click the water to generate expanding ripples; lily pads drift with the waves.',
+          description:
+            'Click the water to generate expanding ripples; lily pads drift with the waves.',
           descriptionZh: '点击水面产生涟漪扩散，睡莲叶片随波漂移。',
           source: 'paintings/impressionism/02-water-lilies.glsl',
           params: [
-            { name: 'u_ripple', label: 'Ripple', labelZh: '波纹强度', min: 0, max: 3, step: 0.1, default: 1.0 },
-            { name: 'u_splash_radius', label: 'Splash', labelZh: '溅射半径', min: 0.05, max: 0.4, step: 0.01, default: 0.15 },
-            { name: 'u_petal_color', label: 'Petal', labelZh: '花瓣色调', type: 'color', defaultColor: [0.95, 0.75, 0.85] },
+            {
+              name: 'u_ripple',
+              label: 'Ripple',
+              labelZh: '波纹强度',
+              min: 0,
+              max: 3,
+              step: 0.1,
+              default: 1.0,
+            },
+            {
+              name: 'u_splash_radius',
+              label: 'Splash',
+              labelZh: '溅射半径',
+              min: 0.05,
+              max: 0.4,
+              step: 0.01,
+              default: 0.15,
+            },
+            {
+              name: 'u_petal_color',
+              label: 'Petal',
+              labelZh: '花瓣色调',
+              type: 'color',
+              defaultColor: [0.95, 0.75, 0.85],
+            },
           ],
           presets: [
-            { name: 'still', nameZh: '静止', values: { u_ripple: 0.2, u_splash_radius: 0.06, u_petal_color: [0.95, 0.85, 0.75] } },
-            { name: 'gentle', nameZh: '微风', values: { u_ripple: 1.0, u_splash_radius: 0.15, u_petal_color: [0.95, 0.75, 0.85] } },
-            { name: 'windy', nameZh: '有风', values: { u_ripple: 2.5, u_splash_radius: 0.3, u_petal_color: [1.0, 0.6, 0.7] } },
+            {
+              name: 'still',
+              nameZh: '静止',
+              values: { u_ripple: 0.2, u_splash_radius: 0.06, u_petal_color: [0.95, 0.85, 0.75] },
+            },
+            {
+              name: 'gentle',
+              nameZh: '微风',
+              values: { u_ripple: 1.0, u_splash_radius: 0.15, u_petal_color: [0.95, 0.75, 0.85] },
+            },
+            {
+              name: 'windy',
+              nameZh: '有风',
+              values: { u_ripple: 2.5, u_splash_radius: 0.3, u_petal_color: [1.0, 0.6, 0.7] },
+            },
           ],
           interactive: true,
         },
@@ -790,14 +1100,48 @@ const paintings: ShaderCategory = {
           descriptionZh: '鼠标位置控制太阳升降，光照角度实时变化。',
           source: 'paintings/impressionism/03-impression-sunrise.glsl',
           params: [
-            { name: 'u_mist', label: 'Mist', labelZh: '雾气浓度', min: 0.3, max: 2.5, step: 0.1, default: 1.2 },
-            { name: 'u_sun_angle', label: 'Sun Angle', labelZh: '太阳角度', min: 0, max: 1, step: 0.02, default: 0.5 },
-            { name: 'u_glow_color', label: 'Glow', labelZh: '光晕色', type: 'color', defaultColor: [1.0, 0.7, 0.3] },
+            {
+              name: 'u_mist',
+              label: 'Mist',
+              labelZh: '雾气浓度',
+              min: 0.3,
+              max: 2.5,
+              step: 0.1,
+              default: 1.2,
+            },
+            {
+              name: 'u_sun_angle',
+              label: 'Sun Angle',
+              labelZh: '太阳角度',
+              min: 0,
+              max: 1,
+              step: 0.02,
+              default: 0.5,
+            },
+            {
+              name: 'u_glow_color',
+              label: 'Glow',
+              labelZh: '光晕色',
+              type: 'color',
+              defaultColor: [1.0, 0.7, 0.3],
+            },
           ],
           presets: [
-            { name: 'dawn', nameZh: '破晓', values: { u_mist: 1.5, u_sun_angle: 0.3, u_glow_color: [1.0, 0.5, 0.2] } },
-            { name: 'morning', nameZh: '清晨', values: { u_mist: 1.0, u_sun_angle: 0.5, u_glow_color: [1.0, 0.7, 0.3] } },
-            { name: 'noon', nameZh: '正午', values: { u_mist: 0.5, u_sun_angle: 0.8, u_glow_color: [1.0, 0.9, 0.6] } },
+            {
+              name: 'dawn',
+              nameZh: '破晓',
+              values: { u_mist: 1.5, u_sun_angle: 0.3, u_glow_color: [1.0, 0.5, 0.2] },
+            },
+            {
+              name: 'morning',
+              nameZh: '清晨',
+              values: { u_mist: 1.0, u_sun_angle: 0.5, u_glow_color: [1.0, 0.7, 0.3] },
+            },
+            {
+              name: 'noon',
+              nameZh: '正午',
+              values: { u_mist: 0.5, u_sun_angle: 0.8, u_glow_color: [1.0, 0.9, 0.6] },
+            },
           ],
           interactive: true,
         },
@@ -807,19 +1151,37 @@ const paintings: ShaderCategory = {
       id: 'geometric',
       title: 'Geometric Abstraction',
       titleZh: '几何抽象系列',
-      description: 'Living geometry — Mondrian blocks drift and Kandinsky shapes dance with the cursor.',
+      description:
+        'Living geometry — Mondrian blocks drift and Kandinsky shapes dance with the cursor.',
       descriptionZh: '活的几何——蒙德里安色块游走，康定斯基图形随光标起舞。',
       demos: [
         {
           id: 'mondrian',
           title: 'Composition — Mondrian',
           titleZh: '红黄蓝构成 — 蒙德里安',
-          description: 'Primary-color rectangles slowly wander; drag the mouse to rebalance the composition.',
+          description:
+            'Primary-color rectangles slowly wander; drag the mouse to rebalance the composition.',
           descriptionZh: '三原色块随时间缓慢游走，鼠标拖拽重新平衡构图。',
           source: 'paintings/geometric/01-mondrian.glsl',
           params: [
-            { name: 'u_wander_speed', label: 'Wander', labelZh: '游走速度', min: 0, max: 1.5, step: 0.05, default: 0.3 },
-            { name: 'u_block_size', label: 'Block Size', labelZh: '色块大小', min: 0.7, max: 1.5, step: 0.02, default: 1.0 },
+            {
+              name: 'u_wander_speed',
+              label: 'Wander',
+              labelZh: '游走速度',
+              min: 0,
+              max: 1.5,
+              step: 0.05,
+              default: 0.3,
+            },
+            {
+              name: 'u_block_size',
+              label: 'Block Size',
+              labelZh: '色块大小',
+              min: 0.7,
+              max: 1.5,
+              step: 0.02,
+              default: 1.0,
+            },
           ],
           presets: [
             { name: 'stable', nameZh: '稳定', values: { u_wander_speed: 0.1, u_block_size: 1.0 } },
@@ -832,12 +1194,29 @@ const paintings: ShaderCategory = {
           id: 'kandinsky',
           title: 'Composition VIII — Kandinsky',
           titleZh: '构图 VIII — 康定斯基',
-          description: 'Circles and lines rotate and scale with mouse movement — a dynamic sculpture.',
+          description:
+            'Circles and lines rotate and scale with mouse movement — a dynamic sculpture.',
           descriptionZh: '圆形和线条随鼠标旋转缩放——动态雕塑。',
           source: 'paintings/geometric/02-kandinsky.glsl',
           params: [
-            { name: 'u_rotation', label: 'Rotation', labelZh: '旋转', min: -1, max: 1, step: 0.02, default: 0.0 },
-            { name: 'u_shape_count', label: 'Density', labelZh: '图形密度', min: 5, max: 30, step: 1, default: 15 },
+            {
+              name: 'u_rotation',
+              label: 'Rotation',
+              labelZh: '旋转',
+              min: -1,
+              max: 1,
+              step: 0.02,
+              default: 0.0,
+            },
+            {
+              name: 'u_shape_count',
+              label: 'Density',
+              labelZh: '图形密度',
+              min: 5,
+              max: 30,
+              step: 1,
+              default: 15,
+            },
           ],
           presets: [
             { name: 'sparse', nameZh: '稀疏', values: { u_rotation: 0.2, u_shape_count: 8 } },
@@ -852,25 +1231,63 @@ const paintings: ShaderCategory = {
       id: 'modern',
       title: 'Modern & Ukiyo-e',
       titleZh: '浮世绘与现代系列',
-      description: 'The Great Wave surges, Rothko breathes, and Pollock splatters — interactive modern art.',
+      description:
+        'The Great Wave surges, Rothko breathes, and Pollock splatters — interactive modern art.',
       descriptionZh: '巨浪翻涌、色域呼吸、滴画泼溅——可交互的现代艺术。',
       demos: [
         {
           id: 'great-wave',
           title: 'The Great Wave — Hokusai',
           titleZh: '神奈川冲浪里 — 葛饰北斋',
-          description: 'Mouse movement whips up towering waves; foam density tracks cursor intensity.',
+          description:
+            'Mouse movement whips up towering waves; foam density tracks cursor intensity.',
           descriptionZh: '鼠标移动掀起巨浪，浪花泡沫跟随光标强度变化。',
           source: 'paintings/modern/01-great-wave.glsl',
           params: [
-            { name: 'u_wave_height', label: 'Wave', labelZh: '浪高', min: 0.5, max: 2.5, step: 0.1, default: 1.5 },
-            { name: 'u_foam_density', label: 'Foam', labelZh: '泡沫密度', min: 0.1, max: 2, step: 0.05, default: 1.0 },
-            { name: 'u_curl_sharpness', label: 'Sharpness', labelZh: '浪尖锐度', min: 0.5, max: 3, step: 0.1, default: 1.8 },
+            {
+              name: 'u_wave_height',
+              label: 'Wave',
+              labelZh: '浪高',
+              min: 0.5,
+              max: 2.5,
+              step: 0.1,
+              default: 1.5,
+            },
+            {
+              name: 'u_foam_density',
+              label: 'Foam',
+              labelZh: '泡沫密度',
+              min: 0.1,
+              max: 2,
+              step: 0.05,
+              default: 1.0,
+            },
+            {
+              name: 'u_curl_sharpness',
+              label: 'Sharpness',
+              labelZh: '浪尖锐度',
+              min: 0.5,
+              max: 3,
+              step: 0.1,
+              default: 1.8,
+            },
           ],
           presets: [
-            { name: 'gentle', nameZh: '小浪', values: { u_wave_height: 0.8, u_foam_density: 0.4, u_curl_sharpness: 1.2 } },
-            { name: 'classic', nameZh: '经典', values: { u_wave_height: 1.5, u_foam_density: 1.0, u_curl_sharpness: 1.8 } },
-            { name: 'tsunami', nameZh: '巨浪', values: { u_wave_height: 2.3, u_foam_density: 1.8, u_curl_sharpness: 2.6 } },
+            {
+              name: 'gentle',
+              nameZh: '小浪',
+              values: { u_wave_height: 0.8, u_foam_density: 0.4, u_curl_sharpness: 1.2 },
+            },
+            {
+              name: 'classic',
+              nameZh: '经典',
+              values: { u_wave_height: 1.5, u_foam_density: 1.0, u_curl_sharpness: 1.8 },
+            },
+            {
+              name: 'tsunami',
+              nameZh: '巨浪',
+              values: { u_wave_height: 2.3, u_foam_density: 1.8, u_curl_sharpness: 2.6 },
+            },
           ],
           interactive: true,
         },
@@ -878,18 +1295,53 @@ const paintings: ShaderCategory = {
           id: 'rothko',
           title: 'Color Fields — Rothko',
           titleZh: '色域画 — 罗斯科',
-          description: 'Color rectangles breathe (expand/contract) with mouse proximity; mood shifts with cursor.',
+          description:
+            'Color rectangles breathe (expand/contract) with mouse proximity; mood shifts with cursor.',
           descriptionZh: '色块随鼠标位置呼吸式膨胀收缩，情绪色调随光标变化。',
           source: 'paintings/modern/02-rothko.glsl',
           params: [
-            { name: 'u_shift', label: 'Shift', labelZh: '色块偏移', min: -0.15, max: 0.15, step: 0.005, default: 0.0 },
-            { name: 'u_breathe_size', label: 'Breathe', labelZh: '呼吸幅度', min: 0, max: 0.1, step: 0.002, default: 0.04 },
-            { name: 'u_mood_color', label: 'Mood', labelZh: '情绪色调', type: 'color', defaultColor: [0.7, 0.3, 0.2] },
+            {
+              name: 'u_shift',
+              label: 'Shift',
+              labelZh: '色块偏移',
+              min: -0.15,
+              max: 0.15,
+              step: 0.005,
+              default: 0.0,
+            },
+            {
+              name: 'u_breathe_size',
+              label: 'Breathe',
+              labelZh: '呼吸幅度',
+              min: 0,
+              max: 0.1,
+              step: 0.002,
+              default: 0.04,
+            },
+            {
+              name: 'u_mood_color',
+              label: 'Mood',
+              labelZh: '情绪色调',
+              type: 'color',
+              defaultColor: [0.7, 0.3, 0.2],
+            },
           ],
           presets: [
-            { name: 'calm', nameZh: '宁静', values: { u_shift: 0.0, u_breathe_size: 0.02, u_mood_color: [0.3, 0.4, 0.6] } },
-            { name: 'warm', nameZh: '温暖', values: { u_shift: 0.03, u_breathe_size: 0.05, u_mood_color: [0.7, 0.3, 0.2] } },
-            { name: 'intense', nameZh: '强烈', values: { u_shift: -0.05, u_breathe_size: 0.08, u_mood_color: [0.9, 0.2, 0.1] } },
+            {
+              name: 'calm',
+              nameZh: '宁静',
+              values: { u_shift: 0.0, u_breathe_size: 0.02, u_mood_color: [0.3, 0.4, 0.6] },
+            },
+            {
+              name: 'warm',
+              nameZh: '温暖',
+              values: { u_shift: 0.03, u_breathe_size: 0.05, u_mood_color: [0.7, 0.3, 0.2] },
+            },
+            {
+              name: 'intense',
+              nameZh: '强烈',
+              values: { u_shift: -0.05, u_breathe_size: 0.08, u_mood_color: [0.9, 0.2, 0.1] },
+            },
           ],
           interactive: true,
         },
@@ -901,14 +1353,48 @@ const paintings: ShaderCategory = {
           descriptionZh: '点击泼溅新颜料，鼠标拖出流淌轨迹。',
           source: 'paintings/modern/03-pollock.glsl',
           params: [
-            { name: 'u_density', label: 'Density', labelZh: '密度', min: 0.3, max: 2.5, step: 0.1, default: 1.0 },
-            { name: 'u_speed', label: 'Speed', labelZh: '演化速度', min: 0, max: 3, step: 0.1, default: 1.0 },
-            { name: 'u_splash_color', label: 'Splash', labelZh: '泼溅色', type: 'color', defaultColor: [0.9, 0.2, 0.1] },
+            {
+              name: 'u_density',
+              label: 'Density',
+              labelZh: '密度',
+              min: 0.3,
+              max: 2.5,
+              step: 0.1,
+              default: 1.0,
+            },
+            {
+              name: 'u_speed',
+              label: 'Speed',
+              labelZh: '演化速度',
+              min: 0,
+              max: 3,
+              step: 0.1,
+              default: 1.0,
+            },
+            {
+              name: 'u_splash_color',
+              label: 'Splash',
+              labelZh: '泼溅色',
+              type: 'color',
+              defaultColor: [0.9, 0.2, 0.1],
+            },
           ],
           presets: [
-            { name: 'sparse', nameZh: '稀疏', values: { u_density: 0.5, u_speed: 0.5, u_splash_color: [0.2, 0.5, 0.8] } },
-            { name: 'medium', nameZh: '中等', values: { u_density: 1.0, u_speed: 1.0, u_splash_color: [0.9, 0.2, 0.1] } },
-            { name: 'dense', nameZh: '密集', values: { u_density: 2.0, u_speed: 2.0, u_splash_color: [1.0, 0.7, 0.0] } },
+            {
+              name: 'sparse',
+              nameZh: '稀疏',
+              values: { u_density: 0.5, u_speed: 0.5, u_splash_color: [0.2, 0.5, 0.8] },
+            },
+            {
+              name: 'medium',
+              nameZh: '中等',
+              values: { u_density: 1.0, u_speed: 1.0, u_splash_color: [0.9, 0.2, 0.1] },
+            },
+            {
+              name: 'dense',
+              nameZh: '密集',
+              values: { u_density: 2.0, u_speed: 2.0, u_splash_color: [1.0, 0.7, 0.0] },
+            },
           ],
           interactive: true,
         },
@@ -919,6 +1405,7 @@ const paintings: ShaderCategory = {
 
 registerCategory(paintings);
 ```
+
 </details>
 
 - [ ] **Step 2: 升级 8 个 shader 文件的交互逻辑**
@@ -926,6 +1413,7 @@ registerCategory(paintings);
 依次修改以下 shader，每个都加入鼠标交互（`uniform vec2 u_mouse;` 已由 GLRenderer 自动注入 render loop 中）和新增参数 uniform。参考现有 shader 的代码风格。
 
 重点：
+
 - starry-night: 在 main() 中，根据 `u_mouse` 位置绘制流星拖尾（沿鼠标轨迹衰减的亮线）和星星明暗调制
 - water-lilies: 使用环形 buffer 或简单的衰减数组追踪最近 N 次点击位置，生成涟漪环；莲花位置做 perlin 漂移
 - impression-sunrise: 太阳 y 坐标 = u_sun_angle（由鼠标 y 控制），光照计算中太阳位置参数化
@@ -950,11 +1438,13 @@ git commit -m "feat: paintings — interactive upgrades to all 8 demos"
 ### Task 5: paintings 新增 2 个 shader
 
 **Files:**
+
 - Create: `src/shaders/paintings/surrealism/01-dali-melting.glsl` — 达利·记忆的永恒
 - Create: `src/shaders/paintings/secession/01-klimt-kiss.glsl` — 克里姆特·吻
 - Modify: `src/shader/categories/paintings.ts` — 追加 2 个新 series + demo
 
 **Interfaces:**
+
 - Consumes: Task 1 (params), Task 4 (paintings category structure)
 - Produces: 2 new painting demo entries + 2 new GLSL files
 
@@ -1179,10 +1669,12 @@ git commit -m "feat: paintings — Dali melting clocks + Klimt gold leaf shaders
 ### Task 6: effects 深度重做（4 个）
 
 **Files:**
+
 - Modify: `src/shader/categories/effects.ts` — 更新 4 个 demo 的参数定义
 - Modify: 4 个 shader 文件完全重写（`src/shaders/effects/`）
 
 **Interfaces:**
+
 - Consumes: Task 1, Task 2 (color params)
 - Produces: 4 rewritten effects demos with exhibition-level visuals
 
@@ -1207,6 +1699,7 @@ git commit -m "feat: paintings — Dali melting clocks + Klimt gold leaf shaders
 - [ ] **Step 5: 更新 effects.ts 元数据**
 
 更新 `src/shader/categories/effects.ts`，每 demo 补齐/替换参数字段。新增参数包括：
+
 - mouse-particles: `u_attract_repel`, `u_particle_count`, `u_color_theme`, `u_trail_length`
 - flow-field: `u_density`, `u_noise_scale`, `u_flow_speed`, `u_color_theme`
 - ink-diffusion: `u_viscosity`, `u_ink_color` (color), `u_drop_spread`, `u_paper_texture`
@@ -1227,11 +1720,13 @@ git commit -m "feat: effects — deep rewrite for exhibition-level visuals"
 ### Task 7: effects 新增 2 个 shader
 
 **Files:**
+
 - Create: `src/shaders/effects/reaction/01-reaction-diffusion.glsl` — Gray-Scott 反应扩散
 - Create: `src/shaders/effects/reaction/02-fractal-flame.glsl` — 分形火焰
 - Modify: `src/shader/categories/effects.ts` — 追加 series
 
 **Interfaces:**
+
 - Consumes: Task 6 (effects category structure)
 - Produces: 2 new effects demos
 
@@ -1450,10 +1945,12 @@ git commit -m "feat: effects — reaction-diffusion + fractal flame shaders"
 ### Task 8: filters 重写（6 个）
 
 **Files:**
+
 - Modify: `src/shader/categories/filters.ts` — 更新 6 个 demo 参数（增加参数）
 - Modify: 6 个 shader 文件（`src/shaders/filters/`）全部重写
 
 **Interfaces:**
+
 - Consumes: Task 1 (color params), Task 2 (ColorSwatch in room variant)
 - Produces: 6 rewritten filter demos at exhibition quality
 
@@ -1504,6 +2001,7 @@ void main() {
   gl_FragColor = vec4(col, 1.0);
 }
 ```
+
 </details>
 
 - [ ] **Step 2: 重写 sepia（时光胶囊）**
@@ -1543,9 +2041,11 @@ git commit -m "feat: filters — rewrite 6 demos for professional quality"
 ### Task 9: nebula-light 重做（晨光大理石）
 
 **Files:**
+
 - Modify: `src/shaders/background/nebula-light.glsl` — 完全重写
 
 **Interfaces:**
+
 - Consumes: 现有 EntryHall（不改动），只替换 shader 内容
 - Produces: 晨光大理石 shader
 
@@ -1649,12 +2149,14 @@ git commit -m "feat: nebula-light — morning marble entrance shader"
 ### Task 10: 测试
 
 **Files:**
+
 - Modify: `tests/unit/ShaderControls.test.tsx` — 追加颜色参数 UI 测试
 - Modify: `tests/e2e/smoke.spec.ts` — 扩展 e2e flow
 - Create: `tests/unit/colorParams.test.ts` — (Task 1 已创建)
 - Create: `tests/unit/ColorSwatch.test.tsx` — (Task 2 已创建)
 
 **Interfaces:**
+
 - Consumes: Task 2 (ColorSwatch), Task 3-9 (shader content)
 - Produces: 测试覆盖颜色参数 UI + e2e 博物馆全流程验证
 
@@ -1710,6 +2212,7 @@ it('calls onParamChange with color array when color slider changes', () => {
 - [ ] **Step 2: 扩展 e2e**
 
 在 `tests/e2e/smoke.spec.ts` 中追加或修改测试：
+
 - 打开 gallery 后验证至少 4 个展厅 section 渲染（`.gallery-section` count ≥ 4）
 - 点击第一个 painting 卡片 → FocusRoom 打开 → 验证 `data-testid="focus-room"` 可见 → 滑动某个 slider 参数 → Escape 关闭
 - 切换到中文（`i18n.changeLanguage('zh')` 或通过导航按钮点击语言切换）→ 验证馆名/展厅 kicker 变为中文
@@ -1736,6 +2239,7 @@ git commit -m "test: color param UI tests + e2e museum flow extension"
 ### Task 11: 全门链收口
 
 **Files:**
+
 - Modify: `src/i18n/index.ts` — 可能需要补新增的 i18n key（如有）
 
 **Verification only — no new feature code.**
@@ -1745,6 +2249,7 @@ git commit -m "test: color param UI tests + e2e museum flow extension"
 ```bash
 npm run check:shaders
 ```
+
 确保所有新建/修改的 shader 不含 `varying`, `#version`, `iTime`, `iResolution`, `iMouse`。
 
 - [ ] **Step 2: 全量代码质量**
@@ -1754,6 +2259,7 @@ npm run format
 npm run lint
 npx tsc -b
 ```
+
 全部 exit 0。
 
 - [ ] **Step 3: 全量测试**
@@ -1762,6 +2268,7 @@ npx tsc -b
 npm test
 npm run test:e2e
 ```
+
 全部通过。
 
 - [ ] **Step 4: 构建验证**
@@ -1769,6 +2276,7 @@ npm run test:e2e
 ```bash
 npm run build
 ```
+
 Exit 0，产物正常。
 
 - [ ] **Step 5: 零 `!` 审计**
@@ -1777,6 +2285,7 @@ Exit 0，产物正常。
 grep -rn '!\s*\.' src/ --include="*.ts" --include="*.tsx" | grep -v '//\|\.d\.ts'
 grep -rn 'eslint-disable' src/ tests/
 ```
+
 Both must be empty.
 
 - [ ] **Step 6: 全门链一次提交（如还有未提交改动）**
@@ -1799,4 +2308,3 @@ git add -A && git commit -m "chore: full gate verification pass"
 8. 移动端：单列网格、参数区可操作
 
 ---
-
