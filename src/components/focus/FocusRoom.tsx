@@ -172,7 +172,7 @@ export function FocusRoom({ demo, kicker, variant, onClose }: FocusRoomProps) {
           {originalSource && (
             <ShaderCodeEditor
               alwaysOpen
-              code={originalSource}
+              code={activeSource}
               onChange={handleCodeChange}
               onReset={handleCodeReset}
               error={compileError}

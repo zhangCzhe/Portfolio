@@ -53,6 +53,8 @@ export function ShaderCodeEditor({
   );
 
   const handleReset = useCallback(() => {
+    // 先取消仍挂起的防抖 onChange，避免重置后被写回旧代码（reset 必须赢）
+    clearTimeout(debounceRef.current);
     setDirty(false);
     onReset();
   }, [onReset]);
