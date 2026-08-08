@@ -5,7 +5,10 @@ precision highp float;
 #endif
 uniform float u_time;
 uniform vec2 u_resolution;
+uniform vec2 u_mouse;
 uniform float u_wave_height;
+uniform float u_foam_density;
+uniform float u_curl_sharpness;
 
 float hash(vec2 p) { return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
 
@@ -50,25 +53,30 @@ void main() {
     float wx = uv.x * 2.0 - 0.5;
     float wy = uv.y;
 
+    // Mouse whip — cursor height and horizontal swing surge the wave
+    float surge = u_mouse.y * 0.5 + abs(u_mouse.x - 0.5) * 0.7;
+    float waveHeight = (0.2 + 0.07 * surge) * u_wave_height;
+
     // Primary wave arc
     float arc = wx - 0.5;
-    float waveHeight = 0.2 * u_wave_height;
     wave = wy - (0.25 + waveHeight * (1.0 - arc * arc * 1.5));
     wave = smoothstep(0.0, 0.015, wave) * step(-1.0, arc) * step(arc, 1.0);
 
-    // Secondary wave curls (foam fingers)
+    // Secondary wave curls (foam fingers) — sharper with u_curl_sharpness
+    float curlFreq = 5.0 + u_curl_sharpness * 2.0;
     for (int i = 0; i < 6; i++) {
       float fi = float(i);
       float cx = 0.2 + fi * 0.1;
       float cy = 0.22 + fi * 0.03;
-      float amp = 1.0 + fi * 0.15;
-      float finger = wy - (cy + 0.12 * sin(wx * 5.0 + fi * 1.5) * amp);
+      float amp = (1.0 + fi * 0.15) * (0.8 + u_curl_sharpness * 0.35);
+      float finger = wy - (cy + 0.12 * sin(wx * curlFreq + fi * 1.5) * amp);
       finger *= smoothstep(0.0, 0.2, abs(wx - cx));
       wave = max(wave, smoothstep(0.0, 0.01, finger));
     }
 
-    // Foam texture on wave crest
-    foam = fbm(uv * vec2(8.0, 5.0) + u_time * 0.05) * 0.6;
+    // Foam texture on wave crest — density tracks cursor intensity
+    foam = fbm(uv * vec2(8.0, 5.0) + u_time * 0.05) * 0.6 * u_foam_density;
+    foam *= 0.4 + 0.8 * u_mouse.y;
     foam *= smoothstep(0.0, 0.08, wave);
     wave += foam * 0.4;
   }

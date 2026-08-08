@@ -5,7 +5,10 @@ precision highp float;
 #endif
 uniform float u_time;
 uniform vec2 u_resolution;
+uniform vec2 u_mouse;
 uniform float u_shift;
+uniform float u_breathe_size;
+uniform vec3 u_mood_color;
 
 float hash(vec2 p) { return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
 
@@ -22,21 +25,28 @@ void main() {
 
   // Rothko-style color fields with soft, blurred boundaries
 
+  // Breathing — field edges pulse with the cursor distance
+  float dm = length(uv - u_mouse) * 2.0 + 0.3;
+  float breath = u_breathe_size * sin(u_time * 0.9) * dm;
+
+  // Mood blend — cursor X steers how strongly the mood tone takes over
+  float moodMix = 0.3 + 0.35 * u_mouse.x;
+
   // Field 1: Deep red-orange (bottom)
-  float f1 = smoothstep(0.55 + u_shift, 0.7 + u_shift, uv.y + noise(uv * 60.0) * 0.03);
-  vec3 c1 = vec3(0.75, 0.15, 0.08);
+  float f1 = smoothstep(0.55 + u_shift + breath, 0.7 + u_shift + breath, uv.y + noise(uv * 60.0) * 0.03);
+  vec3 c1 = mix(vec3(0.75, 0.15, 0.08), u_mood_color, moodMix);
 
   // Field 2: Dark maroon/black (top)
-  float f2 = smoothstep(0.15 + u_shift, 0.3 + u_shift, uv.y + noise(uv * 50.0) * 0.03);
-  vec3 c2 = vec3(0.18, 0.06, 0.08);
+  float f2 = smoothstep(0.15 + u_shift + breath * 1.4, 0.3 + u_shift + breath * 1.4, uv.y + noise(uv * 50.0) * 0.03);
+  vec3 c2 = mix(vec3(0.18, 0.06, 0.08), u_mood_color * 0.45, moodMix);
 
   // Field 3: Warm orange band (middle)
-  float f3 = smoothstep(0.35 + u_shift, 0.5 + u_shift, uv.y + noise(uv * 55.0) * 0.04);
-  f3 *= 1.0 - smoothstep(0.55 + u_shift, 0.65 + u_shift, uv.y + noise(uv * 55.0) * 0.04);
-  vec3 c3 = vec3(0.85, 0.4, 0.15);
+  float f3 = smoothstep(0.35 + u_shift + breath * 0.8, 0.5 + u_shift + breath * 0.8, uv.y + noise(uv * 55.0) * 0.04);
+  f3 *= 1.0 - smoothstep(0.55 + u_shift + breath * 0.8, 0.65 + u_shift + breath * 0.8, uv.y + noise(uv * 55.0) * 0.04);
+  vec3 c3 = mix(vec3(0.85, 0.4, 0.15), u_mood_color * 1.25, moodMix);
 
-  // Background warm tone
-  vec3 bg = vec3(0.82, 0.35, 0.18);
+  // Background warm tone, tinted by the mood
+  vec3 bg = mix(vec3(0.82, 0.35, 0.18), u_mood_color * 1.15, moodMix * 0.7);
 
   vec3 color = bg;
   color = mix(color, c1, f1);

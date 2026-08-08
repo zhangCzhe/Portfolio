@@ -5,7 +5,10 @@ precision highp float;
 #endif
 uniform float u_time;
 uniform vec2 u_resolution;
+uniform vec2 u_mouse;
 uniform float u_mist;
+uniform float u_sun_angle;
+uniform vec3 u_glow_color;
 
 float hash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -32,12 +35,16 @@ void main() {
   vec2 uv = gl_FragCoord.xy / u_resolution;
   uv.x *= u_resolution.x / u_resolution.y;
 
-  // Sky gradient
+  // Sun angle — base param blended with mouse Y (0 = horizon, 1 = zenith)
+  float sunAngle = clamp(u_sun_angle + (u_mouse.y - 0.5) * 0.6, 0.0, 1.0);
+
+  // Sky gradient brightens as the sun climbs
   vec3 skyTop = vec3(0.3, 0.4, 0.6);
   vec3 skyMid = vec3(0.86, 0.55, 0.35);
   vec3 skyLow = vec3(0.95, 0.7, 0.4);
   vec3 sky = mix(skyLow, skyMid, smoothstep(0.25, 0.55, uv.y));
   sky = mix(sky, skyTop, smoothstep(0.55, 0.8, uv.y));
+  sky = mix(sky, vec3(1.0, 0.85, 0.6), sunAngle * 0.18 * smoothstep(0.2, 0.65, uv.y));
 
   // Mist layers
   float mist = fbm(uv * 3.0 + u_time * 0.03) * u_mist;
@@ -47,16 +54,16 @@ void main() {
   vec3 mistColor = vec3(0.7, 0.55, 0.5);
   sky = mix(sky, mistColor, mist * 0.4);
 
-  // Sun
-  vec2 sunPos = vec2(0.5, 0.45);
+  // Sun — height follows the mouse, drift follows the cursor horizontally
+  vec2 sunPos = vec2(0.5 + (u_mouse.x - 0.5) * 0.25, mix(0.1, 0.9, sunAngle));
   float sunD = length(uv - sunPos);
   float sun = exp(-sunD * 8.0) * 0.7;
   float sunGlow = exp(-sunD * 2.5) * 0.5;
   float sunHalo = exp(-sunD * 1.0) * 0.3;
 
-  vec3 sunColor = vec3(1.0, 0.7, 0.3);
+  vec3 sunColor = u_glow_color;
   sky += sunGlow * sunColor * 0.4;
-  sky += sunHalo * vec3(1.0, 0.5, 0.2) * 0.2;
+  sky += sunHalo * sunColor * 0.35;
   sky += sun * vec3(1.0, 0.9, 0.7) * 0.6;
 
   // Water reflection of sun — compute reflection once outside the block

@@ -5,6 +5,9 @@ precision highp float;
 #endif
 uniform float u_time;
 uniform vec2 u_resolution;
+uniform vec2 u_mouse;
+uniform float u_wander_speed;
+uniform float u_block_size;
 
 float hash(vec2 p) {
   return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
@@ -21,6 +24,9 @@ void main() {
   // Scale to artboard
   uv = uv * 1.2 - 0.1;
 
+  // Composition space — u_block_size expands/contracts the grid
+  vec2 suv = (uv - 0.5) * u_block_size + 0.5;
+
   vec3 color = vec3(0.96, 0.96, 0.94); // warm white
   vec3 black = vec3(0.05, 0.05, 0.08);
   vec3 red = vec3(0.85, 0.1, 0.1);
@@ -30,12 +36,20 @@ void main() {
   float lineW = 0.008;
   float thickLineW = 0.014;
 
-  // Grid lines
-  float h1 = 0.22, h2 = 0.58, h3 = 0.85;
-  float v1 = 0.18, v2 = 0.55, v3 = 0.8;
+  // Wandering grid — per-line sinusoidal offsets plus mouse drag pull
+  float t = u_time;
+  float wA = u_wander_speed * 0.14;
+  vec2 pull = (u_mouse - 0.5) * u_wander_speed * 0.45;
+
+  float h1 = 0.22 + wA * sin(t * 1.3 + 0.7) + pull.y * 0.4;
+  float h2 = 0.58 + wA * sin(t * 0.9 + 2.1) + pull.y * 0.8;
+  float h3 = 0.85 + wA * sin(t * 1.1 + 3.6) + pull.y * 0.6;
+  float v1 = 0.18 + wA * sin(t * 0.7 + 1.1) + pull.x * 0.5;
+  float v2 = 0.55 + wA * sin(t * 1.2 + 4.2) + pull.x * 0.8;
+  float v3 = 0.80 + wA * sin(t * 0.8 + 2.8) + pull.x * 0.6;
 
   // Check which cell we're in
-  float cx = uv.x, cy = uv.y;
+  float cx = suv.x, cy = suv.y;
 
   // Cell (v1-v2, 0-h1): Red rectangle
   if (cx > v2 && cx < v3 && cy > 0.0 && cy < h1) {

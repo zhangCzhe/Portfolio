@@ -5,8 +5,10 @@ precision highp float;
 #endif
 uniform float u_time;
 uniform vec2 u_resolution;
+uniform vec2 u_mouse;
 uniform float u_density;
 uniform float u_speed;
+uniform vec3 u_splash_color;
 
 float hash(vec2 p) { return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
 
@@ -84,9 +86,32 @@ void main() {
   }
   color = mix(color, accentColor * 1.5, clamp(layer2, 0.0, 1.0));
 
+  // Interactive layer — splatter bursts at the cursor, dragging leaves drip trails
+  float burstT = fract(u_time * u_speed * 0.8);
+  float splash = 0.0;
+  for (int i = 0; i < 8; i++) {
+    float fi = float(i);
+    float seedA = hash(vec2(fi, 7.0));
+    float seedB = hash(vec2(fi, 8.0));
+    float ang = seedA * 6.28318;
+    float radius = (0.01 + seedB * 0.1) * (1.6 - burstT) * u_density;
+    vec2 sp = u_mouse + vec2(cos(ang), sin(ang)) * radius;
+
+    float d = length(uv - sp) / (0.005 + seedB * 0.015);
+    float droplet = exp(-d * d * 2.0) * (1.0 - burstT) * 0.5;
+    float ring = exp(-abs(d - 0.5) * 4.0) * 0.3 * (1.0 - burstT);
+    splash += (droplet + ring) * u_density;
+  }
+
+  // Drip falling from the cursor while dragging
+  float dripTrail = exp(-abs(uv.x - u_mouse.x) / 0.005) * exp(-abs(uv.y - u_mouse.y) / 0.05);
+  splash += dripTrail * 0.35 * u_density;
+
+  color = mix(color, u_splash_color, clamp(splash, 0.0, 1.0) * 0.8);
+
   // Paint thickness / overlap texture
   float thickness = fbm(uv * 40.0 + u_time * 0.02 * u_speed) * 0.05;
-  color += thickness * (layer1 + layer2) * 0.3;
+  color += thickness * (layer1 + layer2 + splash) * 0.3;
 
   gl_FragColor = vec4(color, 1.0);
 }

@@ -7,7 +7,10 @@ precision highp float;
 
 uniform float u_time;
 uniform vec2 u_resolution;
+uniform vec2 u_mouse;
 uniform float u_turbulence;
+uniform float u_star_brightness;
+uniform float u_color_shift;
 
 // ── Standard noise library (matching Book of Shaders conventions) ──
 
@@ -46,6 +49,10 @@ void main() {
   vec3 sky = mix(skyLow, skyMid, smoothstep(0.15, 0.50, uv.y));
   sky = mix(sky, skyTop, smoothstep(0.50, 0.85, uv.y));
 
+  // Color shift — twilight purple cast across the whole scene
+  vec3 twilight = vec3(0.38, 0.14, 0.45);
+  sky = mix(sky, twilight, u_color_shift * 0.55);
+
   // ── Van Gogh's swirling sky (enhanced turbulence) ──
   vec2 q = uv;
   q.x += sin(uv.y * 3.0 + t * 2.0) * 0.06;
@@ -70,7 +77,7 @@ void main() {
   }
   bands = smoothstep(0.30, 0.80, bands);
 
-  // ── Stars with halos and color variation ──
+  // ── Stars with halos, breathing with the cursor ──
   float stars = 0.0;
   vec3 starColor = vec3(0.0);
   for (int i = 0; i < 18; i++) {
@@ -82,18 +89,44 @@ void main() {
     float d = length(uv - sp);
     float size = 25.0 + hash(vec2(fi, 3.0)) * 35.0;
 
-    // Twinkling with phase offset per star
-    float twinkle = 0.5 + 0.5 * sin(u_time * (1.5 + hash(vec2(fi, 2.0)) * 2.0) + fi * 3.0);
-    float core = exp(-d * d * size * size) * twinkle * 0.7;
-    float halo = exp(-d * d * size * size * 0.08) * 0.12;
-    float glow = exp(-d * size * 3.0) * 0.05;
+    // Twinkling with phase offset per star, brightened near the cursor
+    float breathe = 0.5 + 0.5 * sin(u_time * (1.5 + hash(vec2(fi, 2.0)) * 2.0) + fi * 3.0);
+    float nearMouse = exp(-length(sp - u_mouse) * 7.0);
+    float twinkle = breathe * (0.55 + 0.9 * nearMouse);
 
-    // Color temperature variation
-    float temp = hash(vec2(fi, 4.0));
+    float core = exp(-d * d * size * size) * twinkle * 0.7 * u_star_brightness;
+    float halo = exp(-d * d * size * size * 0.08) * 0.12 * u_star_brightness;
+    float glow = exp(-d * size * 3.0) * 0.05 * u_star_brightness;
+
+    // Color temperature variation, warmed by the color shift
+    float temp = fract(hash(vec2(fi, 4.0)) + u_color_shift * 0.45);
     vec3 sc = mix(vec3(1.0, 0.95, 0.6), vec3(0.7, 0.85, 1.0), temp);
 
     stars += core + halo + glow;
     starColor += (core * 0.8 + halo) * sc;
+  }
+
+  // ── Meteor streaks trailing the mouse ──
+  float meteors = 0.0;
+  vec3 meteorColor = vec3(1.0, 0.95, 0.8);
+  for (int i = 0; i < 4; i++) {
+    float fi = float(i);
+    float seed = hash(vec2(fi, 9.0));
+    float ang = hash(vec2(fi, 10.0)) * 6.28318 + u_time * 0.25 * (0.5 + seed);
+    vec2 dir = vec2(cos(ang), sin(ang));
+    float prog = fract(u_time * (0.7 + seed * 0.6) + fi * 0.37);
+    float len = 0.10 + seed * 0.12;
+    vec2 head = u_mouse + dir * prog * 0.55;
+
+    vec2 rel = uv - head;
+    float along = dot(rel, -dir);
+    float perp = abs(dot(rel, vec2(-dir.y, dir.x)));
+
+    float streak = exp(-perp * 55.0) * exp(-along * 9.0);
+    streak *= smoothstep(0.0, 0.02, along) * (1.0 - smoothstep(len - 0.02, len, along));
+    float headGlow = exp(-length(rel) * 12.0) * 0.5;
+
+    meteors += streak * 0.7 + headGlow * 0.4;
   }
 
   // ── Crescent moon with glow ──
@@ -145,6 +178,7 @@ void main() {
   vec3 color = mix(darkBlue, lightBlue, swirl * 0.7);
   color = mix(color, lightBlue * 1.1, bands * 0.55);
   color += starColor * 0.9;
+  color += meteorColor * meteors * 0.8;
   color += moon * white * 0.75;
   color += moonGlow * vec3(1.0, 0.9, 0.6);
 
