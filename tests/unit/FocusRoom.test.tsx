@@ -14,7 +14,7 @@ const demo: ShaderDemo = {
   titleZh: '星夜涡旋',
   description: 'A swirling night sky.',
   descriptionZh: '旋转的夜空。',
-  source: 'basics/colors/01-hsb-spectrum.glsl',
+  source: 'basics/colors/02-gradient-ring.glsl',
   params: [
     { name: 'speed', label: 'Speed', labelZh: '速度', min: 0, max: 2, step: 0.1, default: 1 },
   ],

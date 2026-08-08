@@ -11,7 +11,7 @@ function makeDemo(id: string, title: string): ShaderDemo {
     titleZh: `${title} 中文`,
     description: `${id} desc`,
     descriptionZh: `${id} 描述`,
-    source: 'basics/colors/01-hsb-spectrum.glsl',
+    source: 'basics/colors/02-gradient-ring.glsl',
     params: [],
     presets: [],
   };

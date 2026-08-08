@@ -28,7 +28,7 @@ export interface ShaderDemo {
   titleZh: string;
   description: string;
   descriptionZh: string;
-  /** Path relative to src/shaders/, e.g. 'basics/colors/01-hsb-spectrum.glsl' */
+  /** Path relative to src/shaders/, e.g. 'basics/colors/02-gradient-ring.glsl' */
   source: string;
   params: ShaderParam[];
   presets: ShaderPreset[];

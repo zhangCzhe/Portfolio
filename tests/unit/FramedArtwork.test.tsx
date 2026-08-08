@@ -10,7 +10,7 @@ const demo: ShaderDemo = {
   titleZh: 'HSB 色环',
   description: 'HSB color space demo',
   descriptionZh: 'HSB 色彩空间',
-  source: 'basics/colors/01-hsb-spectrum.glsl',
+  source: 'basics/colors/02-gradient-ring.glsl',
   params: [
     { name: 'speed', label: 'Speed', labelZh: '速度', min: 0, max: 2, step: 0.1, default: 1 },
   ],
