@@ -106,6 +106,17 @@ describe('GLRenderer', () => {
     renderer.dispose();
   });
 
+  it('dispose releases GL resources and loses context', () => {
+    const canvas = makeFakeCanvas(gl);
+    const renderer = new GLRenderer(canvas);
+    renderer.init();
+    renderer.setFragmentShader('ok');
+    renderer.dispose();
+    expect(gl.deletedPrograms).toBe(1);
+    expect(gl.deletedBuffers).toBe(1);
+    expect(gl.loseContextCalled).toBe(true);
+  });
+
   it('dispose removes canvas context-lost/restored event listeners', () => {
     const canvas = makeFakeCanvas(gl);
     const renderer = new GLRenderer(canvas);
